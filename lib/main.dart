@@ -129,8 +129,8 @@ class _MainAppState extends State<MainApp>{
             builder: (context){
               return Center(
                 child: SizedBox(
-                  width: 300,  // Độ rộng của toàn bộ ma trận
-                  height: 300,
+                  width: 600,  // Độ rộng của toàn bộ ma trận
+                  height: 600,
                   child: Column( // Thêm Column để bọc 2 hàng
                   children: [
                     // Hàng 1 (Gồm ô 1 và ô 2)

@@ -156,8 +156,48 @@ class _MainAppState extends State<MainApp>{
                                   color: const Color.fromARGB(255, 246, 2, 2),
                                   border: Border.all(color: const Color.fromARGB(255, 246, 2, 2), width: 2),
                                 ),
-                                child: const Center(child: Text('Emergency and Important', textAlign: TextAlign.center)),
-                              ),
+                                child: Column(
+                                  children: [
+                                    const Text('Emergency and Important'),
+                                    Expanded(
+                                      child: ListView(
+                                        children: urgentImportant.map((task){
+                                          return ListTile(
+                                            leading: Checkbox(
+                                              value: task.isDone,
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  task.isDone = value!;
+                                                });
+                                              },
+                                            ),
+                                            title: Text(
+                                              task.title,
+                                              style: TextStyle(
+                                                decoration: task.isDone
+                                                    ? TextDecoration.lineThrough
+                                                    : null,
+                                              ),
+                                            ),
+                                            trailing: IconButton(
+                                              icon: Icon(Icons.delete),
+                                              onPressed: () {
+                                                setState(() {
+                                                  urgentImportant.remove(task);
+                                                });
+                                              },
+                                            ),
+                                          );
+                                          
+                                        }).toList(),
+                                      ),
+                                      
+                                    ),
+                                    
+                                  ],
+                                  // child: const Center(child: Text('Emergency and Important', textAlign: TextAlign.center)),
+                                ),
+                              )
                             )
                           ),
                           Expanded(
@@ -168,7 +208,7 @@ class _MainAppState extends State<MainApp>{
                                   'Not Emergency but Important',
                                   (task){
                                     setState(() {
-                                      urgentImportant.add(task);
+                                      notUrgentImportant.add(task);
                                     });
                                   }
                                 );
@@ -179,7 +219,44 @@ class _MainAppState extends State<MainApp>{
                                   color: Colors.deepOrangeAccent,
                                   border: Border.all(color: Colors.deepOrangeAccent, width: 2),
                                 ),
-                                child: const Center(child: Text('Not Emergency but Important', textAlign: TextAlign.center)),
+                                child: Column(
+                                  children: [
+                                    const Text('Not Emergency but Important'),
+                                    Expanded(
+                                      child: ListView(
+                                        children: notUrgentImportant.map((task){
+                                          return ListTile(
+                                            leading: Checkbox(
+                                              value: task.isDone,
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  task.isDone = value!;
+                                                });
+                                              },
+                                            ),
+                                            title: Text(
+                                              task.title,
+                                              style: TextStyle(
+                                                decoration: task.isDone
+                                                    ? TextDecoration.lineThrough
+                                                    : null,
+                                              ),
+                                            ),
+                                            trailing: IconButton(
+                                              icon: Icon(Icons.delete),
+                                              onPressed: () {
+                                                setState(() {
+                                                  urgentImportant.remove(task);
+                                                });
+                                              },
+                                            ),
+                                          );
+                                        }).toList(),
+                                      )
+                                    ),
+                                  ],
+                                ),
+                                // child: const Center(child: Text('Not Emergency but Important', textAlign: TextAlign.center)),
                               ),
                             )
                           ),
@@ -198,7 +275,7 @@ class _MainAppState extends State<MainApp>{
                                   'Emergency but not Important',
                                   (task){
                                     setState(() {
-                                      urgentImportant.add(task);
+                                      urgentNotImportant.add(task);
                                     });
                                   }
                                 );
@@ -209,7 +286,44 @@ class _MainAppState extends State<MainApp>{
                                   color: Colors.yellowAccent,
                                   border: Border.all(color: Colors.yellowAccent, width: 2),
                                 ),
-                                child: const Center(child: Text('Emergency but not Important', textAlign: TextAlign.center)),
+                                child: Column(
+                                  children: [
+                                    const Text('Emergency but not Important'),
+                                    Expanded(
+                                      child: ListView(
+                                        children: urgentNotImportant.map((task){
+                                          return ListTile(
+                                            leading: Checkbox(
+                                              value: task.isDone,
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  task.isDone = value!;
+                                                });
+                                              },
+                                            ),
+                                            title: Text(
+                                              task.title,
+                                              style: TextStyle(
+                                                decoration: task.isDone
+                                                    ? TextDecoration.lineThrough
+                                                    : null,
+                                              ),
+                                            ),
+                                            trailing: IconButton(
+                                              icon: Icon(Icons.delete),
+                                              onPressed: () {
+                                                setState(() {
+                                                  urgentImportant.remove(task);
+                                                });
+                                              },
+                                            ),
+                                          );
+                                        }).toList(),
+                                      )
+                                    )
+                                  ],
+                                ),
+                                // child: const Center(child: Text('Emergency but not Important', textAlign: TextAlign.center)),
                               ),
                             ),
                           ),
@@ -221,7 +335,7 @@ class _MainAppState extends State<MainApp>{
                                   'Not Emergency & not Important',
                                   (task){
                                     setState(() {
-                                      urgentImportant.add(task);
+                                      notUrgentNotImportant.add(task);
                                     });
                                   }
                                 );
@@ -232,7 +346,44 @@ class _MainAppState extends State<MainApp>{
                                   color: Colors.purple,
                                   border: Border.all(color: Colors.purple, width: 2),
                                 ),
-                                child: const Center(child: Text('Not Emergency and not Important', textAlign: TextAlign.center)),
+                                child: Column(
+                                  children: [
+                                    const Text('Not Emergency and not Important'),
+                                    Expanded(
+                                      child: ListView(
+                                        children: notUrgentNotImportant.map((task){
+                                        return ListTile(
+                                          leading: Checkbox(
+                                            value: task.isDone,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                task.isDone = value!;
+                                              });
+                                            },
+                                          ),
+                                          title: Text(
+                                            task.title,
+                                            style: TextStyle(
+                                              decoration: task.isDone
+                                                  ? TextDecoration.lineThrough
+                                                  : null,
+                                            ),
+                                          ),
+                                          trailing: IconButton(
+                                            icon: Icon(Icons.delete),
+                                            onPressed: () {
+                                              setState(() {
+                                                urgentImportant.remove(task);
+                                              });
+                                            },
+                                          ),
+                                        );
+                                        }).toList(),
+                                      )
+                                    ),
+                                  ],
+                                ),
+                                // child: const Center(child: Text('Not Emergency and not Important', textAlign: TextAlign.center)),
                               ),
                             ),
                           ),

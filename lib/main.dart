@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'models/task.dart';
+import 'widgets/quadrant.dart';
 
 void main() {
   runApp(const MainApp());
@@ -246,7 +248,7 @@ class _MainAppState extends State<MainApp>{
                                               icon: Icon(Icons.delete),
                                               onPressed: () {
                                                 setState(() {
-                                                  urgentImportant.remove(task);
+                                                  notUrgentImportant.remove(task);
                                                 });
                                               },
                                             ),
@@ -313,7 +315,7 @@ class _MainAppState extends State<MainApp>{
                                               icon: Icon(Icons.delete),
                                               onPressed: () {
                                                 setState(() {
-                                                  urgentImportant.remove(task);
+                                                  urgentNotImportant.remove(task);
                                                 });
                                               },
                                             ),
@@ -373,7 +375,7 @@ class _MainAppState extends State<MainApp>{
                                             icon: Icon(Icons.delete),
                                             onPressed: () {
                                               setState(() {
-                                                urgentImportant.remove(task);
+                                                notUrgentNotImportant.remove(task);
                                               });
                                             },
                                           ),
@@ -460,12 +462,12 @@ void showAddTaskDialog(BuildContext context, String type, Function(Task) onSave)
   );
 }
 
-class Task{
-  String title;
-  bool isDone;
+// class Task{
+//   String title;
+//   bool isDone;
 
-  Task(this.title, this.isDone);
-}
+//   Task(this.title, this.isDone);
+// }
 
 List<Task> urgentImportant = [];
 List<Task> notUrgentImportant = [];

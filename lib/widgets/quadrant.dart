@@ -25,13 +25,34 @@ class QuadrantWidget extends StatelessWidget{
       child: InkWell(
         onTap: onAdd,
         child: Container(
-          color: color,
+          // color: color,
+          margin: EdgeInsets.all(4),
+          padding: EdgeInsets.all(4),
+
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(5),
+          ),
+          
           child: Column(
+           
             children: [
-              Text(title),
+              Padding(
+                padding: EdgeInsets.all(15),
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold
+                  ),
+                ),
+              ),
+
+              // SizedBox(height: 15),
 
               Expanded(
                 child: ListView(
+                  padding: EdgeInsets.all(8),
                   children: tasks.map((task){
                     return TaskItem(
                       task: task,
@@ -39,8 +60,8 @@ class QuadrantWidget extends StatelessWidget{
                       onDelete: () => onDelete(task),
                     );
                   }).toList(),
-                )
-              )
+                ),
+              ),
             ],
           ),
         ),

@@ -7,111 +7,6 @@ void main() {
   runApp(const MainApp());
 }
 
-// class MainApp extends StatelessWidget {
-//   const MainApp({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       home: Scaffold(
-//         appBar: AppBar(
-//           title: const Text('TodoList sample'),
-//         ),
-//         body: Builder(
-//           builder: (context){
-//             return Center(
-//               child: SizedBox(
-//                 width: 300,  // Độ rộng của toàn bộ ma trận
-//                 height: 300,
-//                 child: Column( // Thêm Column để bọc 2 hàng
-//                 children: [
-//                   // Hàng 1 (Gồm ô 1 và ô 2)
-//                   Expanded(
-//                     child: Row(
-//                       children: [
-//                         Expanded(
-//                           child: InkWell(
-//                             onTap: (){
-//                               showAddTaskDialog(context, 'Emergency & Important');
-//                             },
-//                             child: Container(
-//                               alignment: Alignment.center,
-//                               decoration: BoxDecoration(
-//                                 color: const Color.fromARGB(255, 246, 2, 2),
-//                                 border: Border.all(color: const Color.fromARGB(255, 246, 2, 2), width: 2),
-//                               ),
-//                               child: const Center(child: Text('Emergency and Important', textAlign: TextAlign.center)),
-//                             ),
-//                           )
-//                         ),
-//                         Expanded(
-//                           child: InkWell(
-//                             onTap: (){
-//                               print('2');
-//                             },
-//                             child: Container(
-//                               alignment: Alignment.center,
-//                               decoration: BoxDecoration(
-//                                 color: Colors.deepOrangeAccent,
-//                                 border: Border.all(color: Colors.deepOrangeAccent, width: 2),
-//                               ),
-//                               child: const Center(child: Text('Not Emergency but Important', textAlign: TextAlign.center)),
-//                             ),
-//                           )
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                   // Hàng 2 (Gồm ô 3 và ô 4)
-//                   Expanded(
-//                     child: Row(
-//                       children: [
-//                         Expanded(
-//                           child:InkWell(
-//                             onTap: (){
-//                               print('3');
-//                             },
-//                             child: Container(
-//                               alignment: Alignment.center,
-//                               decoration: BoxDecoration(
-//                                 color: Colors.yellowAccent,
-//                                 border: Border.all(color: Colors.yellowAccent, width: 2),
-//                               ),
-//                               child: const Center(child: Text('Emergency but not Important', textAlign: TextAlign.center)),
-//                             ),
-//                           ),
-//                         ),
-//                         Expanded(
-//                           child: InkWell(
-//                             onTap: (){
-//                               print('4');
-//                             },
-//                             child: Container(
-//                               alignment: Alignment.center,
-//                               decoration: BoxDecoration(
-//                                 color: Colors.purple,
-//                                 border: Border.all(color: Colors.purple, width: 2),
-//                               ),
-//                               child: const Center(child: Text('Not Emergency and not Important', textAlign: TextAlign.center)),
-//                             ),
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             )
-              
-//           );
-//           }
-//         )
-
-//       ),
-//     );
-//   }
-// }
-
 class MainApp extends StatefulWidget{
   const MainApp({super.key});
 
@@ -139,128 +34,49 @@ class _MainAppState extends State<MainApp>{
                     Expanded(
                       child: Row(
                         children: [
-                          Expanded(
-                            child: InkWell(
-                              onTap: (){
-                                showAddTaskDialog(
-                                  context,
-                                  'Emergency & Important',
-                                  (task){
-                                    setState(() {
-                                      urgentImportant.add(task);
-                                    });
-                                  }
-                                );
-                              },
-                              child: Container(
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: const Color.fromARGB(255, 246, 2, 2),
-                                  border: Border.all(color: const Color.fromARGB(255, 246, 2, 2), width: 2),
-                                ),
-                                child: Column(
-                                  children: [
-                                    const Text('Emergency and Important'),
-                                    Expanded(
-                                      child: ListView(
-                                        children: urgentImportant.map((task){
-                                          return ListTile(
-                                            leading: Checkbox(
-                                              value: task.isDone,
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  task.isDone = value!;
-                                                });
-                                              },
-                                            ),
-                                            title: Text(
-                                              task.title,
-                                              style: TextStyle(
-                                                decoration: task.isDone
-                                                    ? TextDecoration.lineThrough
-                                                    : null,
-                                              ),
-                                            ),
-                                            trailing: IconButton(
-                                              icon: Icon(Icons.delete),
-                                              onPressed: () {
-                                                setState(() {
-                                                  urgentImportant.remove(task);
-                                                });
-                                              },
-                                            ),
-                                          );
-                                          
-                                        }).toList(),
-                                      ),
-                                      
-                                    ),
-                                    
-                                  ],
-                                  // child: const Center(child: Text('Emergency and Important', textAlign: TextAlign.center)),
-                                ),
-                              )
-                            )
+                          QuadrantWidget(
+                            title: 'Emergency & Important',
+                            color: Colors.red,
+                            tasks: urgentImportant,
+                            onAdd: () {
+                              showAddTaskDialog(context, 'Emergency & Important', (task) {
+                                setState(() {
+                                  urgentImportant.add(task);
+                                });
+                              });
+                            },
+                            onToggle: (task) {
+                              setState(() {
+                                task.isDone = !task.isDone;
+                              });
+                            },
+                            onDelete: (task) {
+                              setState(() {
+                                urgentImportant.remove(task);
+                              });
+                            },
                           ),
-                          Expanded(
-                            child: InkWell(
-                              onTap: (){
-                                showAddTaskDialog(
-                                  context,
-                                  'Not Emergency but Important',
-                                  (task){
-                                    setState(() {
-                                      notUrgentImportant.add(task);
-                                    });
-                                  }
-                                );
-                              },
-                              child: Container(
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: Colors.deepOrangeAccent,
-                                  border: Border.all(color: Colors.deepOrangeAccent, width: 2),
-                                ),
-                                child: Column(
-                                  children: [
-                                    const Text('Not Emergency but Important'),
-                                    Expanded(
-                                      child: ListView(
-                                        children: notUrgentImportant.map((task){
-                                          return ListTile(
-                                            leading: Checkbox(
-                                              value: task.isDone,
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  task.isDone = value!;
-                                                });
-                                              },
-                                            ),
-                                            title: Text(
-                                              task.title,
-                                              style: TextStyle(
-                                                decoration: task.isDone
-                                                    ? TextDecoration.lineThrough
-                                                    : null,
-                                              ),
-                                            ),
-                                            trailing: IconButton(
-                                              icon: Icon(Icons.delete),
-                                              onPressed: () {
-                                                setState(() {
-                                                  notUrgentImportant.remove(task);
-                                                });
-                                              },
-                                            ),
-                                          );
-                                        }).toList(),
-                                      )
-                                    ),
-                                  ],
-                                ),
-                                // child: const Center(child: Text('Not Emergency but Important', textAlign: TextAlign.center)),
-                              ),
-                            )
+                          QuadrantWidget(
+                            title: 'Not Emergency but Important',
+                            color: const Color.fromARGB(255, 12, 206, 240),
+                            tasks: notUrgentImportant,
+                            onAdd: () {
+                              showAddTaskDialog(context, 'Not Emergency but Important', (task) {
+                                setState(() {
+                                  notUrgentImportant.add(task);
+                                });
+                              });
+                            },
+                            onToggle: (task) {
+                              setState(() {
+                                task.isDone = !task.isDone;
+                              });
+                            },
+                            onDelete: (task) {
+                              setState(() {
+                                notUrgentImportant.remove(task);
+                              });
+                            },
                           ),
                         ],
                       ),
@@ -269,125 +85,49 @@ class _MainAppState extends State<MainApp>{
                     Expanded(
                       child: Row(
                         children: [
-                          Expanded(
-                            child:InkWell(
-                              onTap: (){
-                                showAddTaskDialog(
-                                  context,
-                                  'Emergency but not Important',
-                                  (task){
-                                    setState(() {
-                                      urgentNotImportant.add(task);
-                                    });
-                                  }
-                                );
-                              },
-                              child: Container(
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: Colors.yellowAccent,
-                                  border: Border.all(color: Colors.yellowAccent, width: 2),
-                                ),
-                                child: Column(
-                                  children: [
-                                    const Text('Emergency but not Important'),
-                                    Expanded(
-                                      child: ListView(
-                                        children: urgentNotImportant.map((task){
-                                          return ListTile(
-                                            leading: Checkbox(
-                                              value: task.isDone,
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  task.isDone = value!;
-                                                });
-                                              },
-                                            ),
-                                            title: Text(
-                                              task.title,
-                                              style: TextStyle(
-                                                decoration: task.isDone
-                                                    ? TextDecoration.lineThrough
-                                                    : null,
-                                              ),
-                                            ),
-                                            trailing: IconButton(
-                                              icon: Icon(Icons.delete),
-                                              onPressed: () {
-                                                setState(() {
-                                                  urgentNotImportant.remove(task);
-                                                });
-                                              },
-                                            ),
-                                          );
-                                        }).toList(),
-                                      )
-                                    )
-                                  ],
-                                ),
-                                // child: const Center(child: Text('Emergency but not Important', textAlign: TextAlign.center)),
-                              ),
-                            ),
+                          QuadrantWidget(
+                            title: 'Emergency but not Important',
+                            color: const Color.fromARGB(255, 15, 255, 31),
+                            tasks: urgentNotImportant,
+                            onAdd: () {
+                              showAddTaskDialog(context, 'Emergency but not Important', (task) {
+                                setState(() {
+                                  urgentNotImportant.add(task);
+                                });
+                              });
+                            },
+                            onToggle: (task) {
+                              setState(() {
+                                task.isDone = !task.isDone;
+                              });
+                            },
+                            onDelete: (task) {
+                              setState(() {
+                                urgentNotImportant.remove(task);
+                              });
+                            },
                           ),
-                          Expanded(
-                            child: InkWell(
-                              onTap: (){
-                                showAddTaskDialog(
-                                  context,
-                                  'Not Emergency & not Important',
-                                  (task){
-                                    setState(() {
-                                      notUrgentNotImportant.add(task);
-                                    });
-                                  }
-                                );
-                              },
-                              child: Container(
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: Colors.purple,
-                                  border: Border.all(color: Colors.purple, width: 2),
-                                ),
-                                child: Column(
-                                  children: [
-                                    const Text('Not Emergency and not Important'),
-                                    Expanded(
-                                      child: ListView(
-                                        children: notUrgentNotImportant.map((task){
-                                        return ListTile(
-                                          leading: Checkbox(
-                                            value: task.isDone,
-                                            onChanged: (value) {
-                                              setState(() {
-                                                task.isDone = value!;
-                                              });
-                                            },
-                                          ),
-                                          title: Text(
-                                            task.title,
-                                            style: TextStyle(
-                                              decoration: task.isDone
-                                                  ? TextDecoration.lineThrough
-                                                  : null,
-                                            ),
-                                          ),
-                                          trailing: IconButton(
-                                            icon: Icon(Icons.delete),
-                                            onPressed: () {
-                                              setState(() {
-                                                notUrgentNotImportant.remove(task);
-                                              });
-                                            },
-                                          ),
-                                        );
-                                        }).toList(),
-                                      )
-                                    ),
-                                  ],
-                                ),
-                                // child: const Center(child: Text('Not Emergency and not Important', textAlign: TextAlign.center)),
-                              ),
-                            ),
+                          QuadrantWidget(
+                            title: 'Not Emergency & not Important',
+                            color: const Color.fromARGB(255, 248, 252, 15),
+                            tasks: notUrgentNotImportant,
+                            onAdd: () {
+                              showAddTaskDialog(context, 'Not Emergency & not Important', (task) {
+                                setState(() {
+                                  notUrgentNotImportant.add(task);
+                                });
+                              });
+                            },
+                            onToggle: (task) {
+                              setState(() {
+                                task.isDone = !task.isDone;
+                              });
+                            },
+                            onDelete: (task) {
+                              setState(() {
+                                notUrgentNotImportant.remove(task);
+                              });
+                            },
                           ),
                         ],
                       ),
@@ -395,11 +135,9 @@ class _MainAppState extends State<MainApp>{
                   ],
                 ),
               )
-              
             );
           }
         )
-
       ),
     );
   }
@@ -461,13 +199,6 @@ void showAddTaskDialog(BuildContext context, String type, Function(Task) onSave)
     }
   );
 }
-
-// class Task{
-//   String title;
-//   bool isDone;
-
-//   Task(this.title, this.isDone);
-// }
 
 List<Task> urgentImportant = [];
 List<Task> notUrgentImportant = [];

@@ -20,7 +20,20 @@ class _MainAppState extends State<MainApp>{
     return MaterialApp(
         home: Scaffold(
           appBar: AppBar(
-            title: const Text('TodoList sample'),
+
+            backgroundColor: const Color.fromARGB(255, 215, 225, 215),
+            foregroundColor: const Color.fromARGB(255, 75, 75, 75),
+            // elevation: 4,
+            shadowColor: Colors.black54,
+            toolbarHeight: 70,
+
+              title: const Text(
+                'DecisionMakingList',
+                style: TextStyle(
+                  fontSize: 30,
+                ),
+              ),
+              
           ),
           body: Builder(
             builder: (context){
@@ -109,7 +122,7 @@ class _MainAppState extends State<MainApp>{
                           ),
                           QuadrantWidget(
                             title: 'Not Emergency & not Important',
-                            color: const Color.fromARGB(255, 248, 252, 15),
+                            color: const Color.fromARGB(255, 255, 238, 0),
                             tasks: notUrgentNotImportant,
                             onAdd: () {
                               showAddTaskDialog(context, 'Not Emergency & not Important', (task) {

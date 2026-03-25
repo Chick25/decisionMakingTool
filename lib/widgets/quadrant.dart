@@ -10,13 +10,15 @@ class QuadrantWidget extends StatelessWidget{
   final Function(Task) onToggle;
   final Function(Task) onDelete;
 
+
   const QuadrantWidget({
     required this.title,
     required this.color,
     required this.tasks,
     required this.onAdd,
     required this.onToggle,
-    required this.onDelete
+    required this.onDelete,
+
   });
 
   @override
@@ -43,7 +45,9 @@ class QuadrantWidget extends StatelessWidget{
                   title,
                   style: TextStyle(
                     color: Colors.white,
-                    fontWeight: FontWeight.bold
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  
                   ),
                 ),
               ),
@@ -52,16 +56,25 @@ class QuadrantWidget extends StatelessWidget{
 
               Expanded(
                 child: ListView(
-                  padding: EdgeInsets.all(8),
+                  padding: EdgeInsets.all(4),
                   children: tasks.map((task){
-                    return TaskItem(
-                      task: task,
-                      onChanged: (value) => onToggle(task),
-                      onDelete: () => onDelete(task),
+                    return Container(
+                      margin: EdgeInsets.only(top: 2),
+                      // padding: EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.white38.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+          
+                      child: TaskItem(
+                        task: task,
+                        onChanged: (value) => onToggle(task),
+                        onDelete: () => onDelete(task),
+                      ),
                     );
                   }).toList(),
                 ),
-              ),
+              )
             ],
           ),
         ),

@@ -6,6 +6,7 @@ class TaskItem extends StatelessWidget{
   final Function(bool?) onChanged;
   final VoidCallback onDelete;
 
+
   const TaskItem({
     required this.task,
     required this.onChanged,
@@ -19,7 +20,14 @@ class TaskItem extends StatelessWidget{
         value: task.isDone,
         onChanged: onChanged,
       ),
-      title: Text(task.title),
+      title: Text(
+        task.title,
+        style: TextStyle(
+          decoration: task.isDone 
+                ? TextDecoration.lineThrough 
+                : TextDecoration.none,
+        ),
+      ),
       trailing: IconButton(
         onPressed: onDelete,
         icon: Icon(Icons.delete),

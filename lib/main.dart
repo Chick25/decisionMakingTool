@@ -3,6 +3,8 @@ import 'models/task.dart';
 import 'widgets/quadrant.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'features/all_task/all_task_screen.dart';
+
 void main() {
   runApp(const MainApp());
 }
@@ -22,7 +24,6 @@ class _MainAppState extends State<MainApp>{
 
       theme: ThemeData(
         fontFamily: 'Poppins',        // tên font family
-    // Hoặc dùng google_fonts:
         textTheme: GoogleFonts.poppinsTextTheme(),
       ),
 
@@ -39,10 +40,8 @@ class _MainAppState extends State<MainApp>{
                 'Decision Making List',
                 style: TextStyle(
                   fontSize: 40,
-                 
                 ),
               ),
-              
           ),
           body: Row(
             
@@ -97,13 +96,14 @@ class _MainAppState extends State<MainApp>{
               // const VerticalDivider(thickness: 1, width: 1, color: Color.fromARGB(255, 255, 136, 136)),
               
               Expanded(
-                child: _buildMatrixArea(),
+                child: _buildBody(),
               ),
             ],
           ),
         ),
     );   
   }
+
   Widget _buildMatrixArea(){
     return Builder(
       builder: (context){
@@ -228,8 +228,24 @@ class _MainAppState extends State<MainApp>{
       }
     );
   }
-}
 
+  Widget _buildBody(){
+    switch(_selectedIndex){
+      case 0:
+        return _buildMatrixArea();
+      case 1:
+        return AllTaskScreen(
+          urgentImportant: urgentImportant,
+          notUrgentImportant: notUrgentImportant,
+          urgentNotImportant: urgentNotImportant,
+          notUrgentNotImportant: notUrgentImportant,
+        );
+      default:
+        return _buildMatrixArea();
+    }
+  }
+
+}
 
 void showAddTaskDialog(BuildContext context, String type, Function(Task) onSave){
   TextEditingController controller = TextEditingController();
@@ -286,6 +302,8 @@ void showAddTaskDialog(BuildContext context, String type, Function(Task) onSave)
     }
   );
 }
+
+
 
 List<Task> urgentImportant = [];
 List<Task> notUrgentImportant = [];

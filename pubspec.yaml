@@ -7,9 +7,12 @@ environment:
   sdk: ^3.10.7
 
 dependencies:
+  fl_chart: ^1.2.0
   flutter:
     sdk: flutter
   google_fonts: ^6.2.1
+  pie_chart: ^5.4.0
+  stack_chart: 1.2.2
 
 dev_dependencies:
   flutter_test:

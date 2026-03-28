@@ -26,47 +26,119 @@ class AllTaskScreen extends StatefulWidget{
 class _AllTaskScreenState extends State<AllTaskScreen>{
 
   int ?selectedIndex;
+  bool isExpended = false;
+
 
   @override
   Widget build(BuildContext context){
-    return Column(
-      children: [
-        SizedBox(
-          height: 300,
-          child: PieChart(
-            PieChartData(
-              sectionsSpace: 2,
-              centerSpaceRadius: 40,
-              sections: _buildSections(),
-              pieTouchData: PieTouchData(
-                touchCallback: (event, response){
-                  if(response != null && response.touchedSection != null) {
-                    setState(() {
-                      selectedIndex = response.touchedSection!.touchedSectionIndex;
-                    });
-                  }
-                },
-              )
-            ),
-          ),
-        ), 
+    return SizedBox.expand( 
+      child:Stack(
 
-        Expanded(
-          child: selectedIndex == null ? Center(child: Text('Select in pie chart'))
-          : ListView(
-            children: _getSelectedTasks().map((task){
-              return Card(
-                child: ListTile(
-                  title: Text(task.title),
-                ),
-              );
-            }).toList(),
-          ),
-        ),
+        children: [
+          _buildTaskList(),
+          
 
-      ],
+          
+          _buildPieChart(),
+          // _buildTaskList(),
+        ],
+
+        
+
+      ),
     );
   }
+
+  Widget _buildPieChart(){
+    return AnimatedPositioned(
+      duration: Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+
+      top: isExpended ? 200 : 150,
+      left: isExpended ? 60 : 550,
+
+      child: AnimatedScale(
+        scale: isExpended? 0.9 : 1.5,
+        duration: Duration(milliseconds: 1000),
+        curve: Curves.easeInOutQuint,
+
+        child: SizedBox(
+        width: isExpended ? 200 : 300,
+        height: isExpended ? 200 : 300,
+
+        child: PieChart(
+          PieChartData(
+            sectionsSpace: 2,
+            centerSpaceRadius: 40,
+            sections: _buildSections(),
+            pieTouchData: PieTouchData(
+              
+              touchCallback: (event, response){
+                
+                if (!event.isInterestedForInteractions ||
+                    response == null ||
+                    response.touchedSection == null) {
+                  return;
+                }
+
+                if(event is FlTapUpEvent){
+
+                // if(event.isInterestedForInteractions && response != null && response.touchedSection != null) {
+                  setState(() {
+
+                    int tappedIndex = response.touchedSection!.touchedSectionIndex;
+
+                    if(selectedIndex == tappedIndex && isExpended){
+                      isExpended = false;
+                      selectedIndex = null;
+                    }else{
+                      selectedIndex = tappedIndex;
+                      isExpended = true;
+                     
+                    }
+                  });
+                }
+
+                if (event is FlPointerHoverEvent) {
+                  setState(() {
+                    selectedIndex =
+                        response.touchedSection?.touchedSectionIndex;
+                  });
+                }
+
+              }
+                
+            
+            )
+          ),
+        ),
+      ),
+      )
+    );
+  }
+
+  Widget _buildTaskList(){
+    return AnimatedOpacity(
+      duration: Duration(milliseconds: 400),
+      opacity: isExpended ? 1 : 0,
+
+      child: Padding(
+        padding: const EdgeInsets.only(left: 400, top: 50, right: 20),
+          child: selectedIndex == null 
+          ? SizedBox() : ListView(
+              children: _getSelectedTasks().map((task){
+                return Card(
+                  margin: EdgeInsets.symmetric(vertical: 8),
+                  child: ListTile(
+                    title: Text(task.title),
+                  ),
+                );
+              }).toList(),
+          ),
+      ),
+    );
+  }
+
 
   List<PieChartSectionData> _buildSections(){
     final data = [

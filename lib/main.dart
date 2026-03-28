@@ -238,7 +238,7 @@ class _MainAppState extends State<MainApp>{
           urgentImportant: urgentImportant,
           notUrgentImportant: notUrgentImportant,
           urgentNotImportant: urgentNotImportant,
-          notUrgentNotImportant: notUrgentImportant,
+          notUrgentNotImportant: notUrgentNotImportant,
         );
       default:
         return _buildMatrixArea();

@@ -61,10 +61,10 @@ class QuadrantWidget extends StatelessWidget{
                     return Container(
                       margin: EdgeInsets.only(top: 2),
                       // padding: EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.white38.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(5),
-                      ),
+                      // decoration: BoxDecoration(
+                      //   color: Colors.white38.withValues(alpha: 0.5),
+                      //   borderRadius: BorderRadius.circular(5),
+                      // ),
           
                       child: TaskItem(
                         task: task,

@@ -32,10 +32,8 @@ class _MainAppState extends State<MainApp>{
 
             backgroundColor: const Color.fromARGB(255, 255, 255, 255),
             foregroundColor: const Color.fromARGB(255, 0, 0, 0),
-            // elevation: 4,
-            // shadowColor: Colors.black54,
             toolbarHeight: 100,
-
+          
               title: const Text(
                 'Decision Making List',
                 style: TextStyle(
@@ -53,6 +51,7 @@ class _MainAppState extends State<MainApp>{
                 },
                 minExtendedWidth: 220,
                 minWidth: 90,
+                
                 labelType: NavigationRailLabelType.selected,
                 backgroundColor: const Color.fromARGB(255, 34, 42, 62),
                 indicatorColor: const Color.fromARGB(255, 201, 201, 201).withValues(alpha: 0.5),
@@ -93,8 +92,6 @@ class _MainAppState extends State<MainApp>{
                 ],
               ),
 
-              // const VerticalDivider(thickness: 1, width: 1, color: Color.fromARGB(255, 255, 136, 136)),
-              
               Expanded(
                 child: _buildBody(),
               ),
@@ -109,13 +106,10 @@ class _MainAppState extends State<MainApp>{
       builder: (context){
         return Center(
           child: Container(
-            // width: 850,
             height: 850,
             decoration: BoxDecoration(
-  
               borderRadius: BorderRadius.circular(20),
             ),
-            // padding: const EdgeInsets.all(16),
             child: Column(
               children: [
                 Expanded(
@@ -251,6 +245,9 @@ void showAddTaskDialog(BuildContext context, String type, Function(Task) onSave)
   TextEditingController controller = TextEditingController();
   bool isDone = false;
 
+  DateTime? selectedDate;
+  TimeOfDay? selectedTime;
+
   showDialog(
     context: context,
     builder: (context){
@@ -280,6 +277,47 @@ void showAddTaskDialog(BuildContext context, String type, Function(Task) onSave)
                     Text('Done'),
                   ],
                 ),
+
+                const SizedBox(height: 10),
+
+                TextButton(
+                  onPressed: () async{
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2100),
+                    );
+
+                    if(date !=null){
+                      setState((){
+                        selectedDate = date;
+                      });
+                    }
+                  },
+                  child: Text(
+                    selectedDate == null ? "Select date" : "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}"
+                  ),
+                ),
+
+                TextButton(
+                  onPressed: () async{
+                    final time = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.now(),
+                    );
+
+                    if(time!=null){
+                      setState((){
+                        selectedTime = time;
+                      });
+                    }
+                  },
+                  child: Text(
+                    selectedTime == null ? "Select time" : "${selectedTime!.hour}:${selectedTime!.minute}",
+                  ),
+                ),
+
               ],
             ),
             actions: [
@@ -289,12 +327,28 @@ void showAddTaskDialog(BuildContext context, String type, Function(Task) onSave)
               ),
               ElevatedButton(
                 onPressed: (){
-                  final task = Task(controller.text, isDone);
+                  DateTime? deadline;
+
+                  if(selectedDate != null && selectedTime !=null){
+                    deadline = DateTime(
+                      selectedDate!.year,
+                      selectedDate!.month,
+                      selectedDate!.day,
+                      selectedTime!.hour,
+                      selectedTime!.minute,
+                    );
+                  }
+
+                  final task = Task(
+                    title: controller.text,
+                    isDone: isDone,
+                    deadline: deadline
+                  );
                   onSave(task);
                   Navigator.pop(context);
                 },
                 child: Text('Save'),
-              )
+              ),
             ],
           );
         }
@@ -302,8 +356,6 @@ void showAddTaskDialog(BuildContext context, String type, Function(Task) onSave)
     }
   );
 }
-
-
 
 List<Task> urgentImportant = [];
 List<Task> notUrgentImportant = [];

@@ -28,7 +28,6 @@ class _AllTaskScreenState extends State<AllTaskScreen>{
   int ?selectedIndex;
   bool isExpended = false;
 
-
   @override
   Widget build(BuildContext context){
     return SizedBox.expand( 
@@ -36,15 +35,9 @@ class _AllTaskScreenState extends State<AllTaskScreen>{
 
         children: [
           _buildTaskList(),
-          
-
-          
           _buildPieChart(),
           // _buildTaskList(),
         ],
-
-        
-
       ),
     );
   }

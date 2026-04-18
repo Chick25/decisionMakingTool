@@ -14,6 +14,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final _emailController = TextEditingController();
   final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _isLoginMode = true;
 
   // Các biến trạng thái cho phần Settings
@@ -44,6 +45,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   ];
 
   @override
+  void dispose() {
+  _emailController.dispose();
+  _usernameController.dispose();
+  _passwordController.dispose();
+  super.dispose();
+}
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
 
@@ -142,61 +149,153 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  // ==================== FORM ĐĂNG NHẬP / ĐĂNG KÝ ====================
+  // ==================== FORM ĐĂNG NHẬP / ĐĂNG KÝ MỚI ====================
   Widget _buildLoginRegisterForm(AuthProvider auth) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 300, vertical: 20),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            _isLoginMode ? 'Đăng nhập' : 'Tạo tài khoản mới',
-            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 40),
-          TextField(
-            controller: _usernameController,
-            decoration: const InputDecoration(
-              labelText: 'Tên người dùng',
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.person),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              _isLoginMode ? Icons.login_rounded : Icons.person_add_rounded,
+              size: 80,
+              color: Theme.of(context).primaryColor,
             ),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _emailController,
-            decoration: const InputDecoration(
-              labelText: 'Email',
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.email),
+            const SizedBox(height: 20),
+
+            Text(
+              _isLoginMode ? 'Đăng nhập' : 'Tạo tài khoản mới',
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
-            keyboardType: TextInputType.emailAddress,
-          ),
-          const SizedBox(height: 30),
-          ElevatedButton(
-            onPressed: () {
-              if (_emailController.text.isNotEmpty && _usernameController.text.isNotEmpty) {
-                auth.login(_emailController.text, _usernameController.text);
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Vui lòng nhập đầy đủ thông tin')),
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
-            child: Text(_isLoginMode ? 'Đăng nhập' : 'Đăng ký'),
-          ),
-          TextButton(
-            onPressed: () => setState(() => _isLoginMode = !_isLoginMode),
-            child: Text(_isLoginMode 
-                ? 'Chưa có tài khoản? Đăng ký ngay' 
-                : 'Đã có tài khoản? Đăng nhập'),
-          ),
-        ],
+            const SizedBox(height: 8),
+            Text(
+              _isLoginMode 
+                  ? 'Chào mừng bạn quay trở lại' 
+                  : 'Hãy tạo tài khoản để sử dụng đầy đủ tính năng',
+              style: TextStyle(fontSize: 15, color: Colors.grey[600]),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 40),
+
+            // Username (chỉ hiện khi đăng ký)
+            if (!_isLoginMode) ...[
+              TextField(
+                controller: _usernameController,
+                decoration: InputDecoration(
+                  labelText: 'Tên người dùng',
+                  prefixIcon: const Icon(Icons.person_outline),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  filled: true,
+                  fillColor: Theme.of(context).cardColor,
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            // Email
+            TextField(
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(
+                labelText: 'Email',
+                prefixIcon: const Icon(Icons.email_outlined),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                filled: true,
+                fillColor: Theme.of(context).cardColor,
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Password
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: 'Mật khẩu',
+                prefixIcon: const Icon(Icons.lock_outline),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                filled: true,
+                fillColor: Theme.of(context).cardColor,
+              ),
+            ),
+            const SizedBox(height: 30),
+
+            // Nút hành động
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                onPressed: () async {
+                  final email = _emailController.text.trim();
+                  final password = _passwordController.text.trim();
+
+                  if (email.isEmpty || password.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Vui lòng nhập đầy đủ thông tin')),
+                    );
+                    return;
+                  }
+
+                  if (_isLoginMode) {
+                    // Đăng nhập
+                    bool success = await auth.login(email, password);
+                    if (success) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Đăng nhập thành công!'), backgroundColor: Colors.green),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Email hoặc mật khẩu không đúng'), backgroundColor: Colors.red),
+                      );
+                    }
+                  } else {
+                    // Đăng ký
+                    final username = _usernameController.text.trim();
+                    if (username.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Vui lòng nhập tên người dùng')),
+                      );
+                      return;
+                    }
+                    await auth.register(username, email, password);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Đăng ký thành công!'), backgroundColor: Colors.green),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: Text(
+                  _isLoginMode ? 'Đăng nhập' : 'Tạo tài khoản',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            TextButton(
+              onPressed: () {
+                setState(() => _isLoginMode = !_isLoginMode);
+                _emailController.clear();
+                _usernameController.clear();
+                _passwordController.clear();
+              },
+              child: Text(
+                _isLoginMode 
+                    ? 'Chưa có tài khoản? Đăng ký ngay' 
+                    : 'Đã có tài khoản? Đăng nhập',
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
-
   // ==================== DIALOG CHỌN MÀU MA TRẬN ====================
     // ==================== DIALOG TÙY CHỈNH MÀU (ĐÃ SỬA LẠI) ====================
   void _showMatrixColorDialog() {

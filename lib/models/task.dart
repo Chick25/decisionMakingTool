@@ -17,8 +17,11 @@ class Task extends HiveObject {
   @HiveField(3)
   DateTime? deadline;
 
+ 
+
   Task({
     required this.title,
+   
     this.isDone = false,
     DateTime? createdAt,
     this.deadline,
@@ -27,11 +30,13 @@ class Task extends HiveObject {
   // Helper method tiện lợi
   factory Task.create({
     required String title,
+  
     DateTime? deadline,
   }) {
     return Task(
       title: title,
       deadline: deadline,
+   
     );
   }
 }

@@ -471,7 +471,8 @@ void showAddTaskDialog(BuildContext context, String type, Function(Task) onSave)
                   final task = Task(
                     title: controller.text,
                     isDone: isDone,
-                    deadline: deadline
+                    deadline: deadline,
+                   
                   );
                   onSave(task);
                   Navigator.pop(context);

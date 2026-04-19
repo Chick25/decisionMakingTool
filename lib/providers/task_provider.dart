@@ -11,7 +11,6 @@ class TaskProvider extends ChangeNotifier {
   List<Task> urgentNotImportant = [];
   List<Task> notUrgentNotImportant = [];
 
-
   //Load data from HIve
   Future<void> loadAllTask() async{
     urgentImportant = await _taskService.getTasks(TaskService.urgentImportantKey);
@@ -46,7 +45,6 @@ class TaskProvider extends ChangeNotifier {
   Future<void> toggleDone(String key, Task task) async{
     await _taskService.toggleDone(key, task);
     await loadAllTask(); //<-reaload để đồng bộ
-
   }
 
   //Delete task

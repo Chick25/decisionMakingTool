@@ -1,8 +1,11 @@
+
 import 'package:flutter/material.dart';
-// import 'package:stack_chart/stack_chart.dart';
+import 'package:hive_flutter/adapters.dart';
+import 'package:provider/provider.dart';
+import 'package:todolist/services/task_service.dart';
+import '../../providers/task_provider.dart';
+import '../../models/task.dart';
 import 'package:fl_chart/fl_chart.dart';
-// import 'package:todolist/main.dart';
-// import 'package:todolist/models/task.dart';
 
 class AllTaskScreen extends StatefulWidget{
   final List urgentImportant;
@@ -24,156 +27,195 @@ class AllTaskScreen extends StatefulWidget{
 }
 
 class _AllTaskScreenState extends State<AllTaskScreen>{
-
   int ?selectedIndex;
+  int ?tappedIndex;
   bool isExpended = false;
 
   @override
+  
   Widget build(BuildContext context){
-    return SizedBox.expand( 
-      child:Stack(
+    final taskProvider = Provider.of<TaskProvider>(context);
 
+    final allTasks = [
+      ...taskProvider.urgentImportant,
+      ...taskProvider.notUrgentImportant,
+      ...taskProvider.urgentNotImportant,
+      ...taskProvider.notUrgentNotImportant,
+    ];
+
+    allTasks.sort((a, b)=>b.createdAt.compareTo(a.createdAt));
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('All works'),
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+      ),
+      body: Stack(
         children: [
-          _buildTaskList(),
-          _buildPieChart(),
-          // _buildTaskList(),
+          _buildTaskList(allTasks, taskProvider),
+          _buildPieChart(taskProvider),
         ],
       ),
     );
   }
 
-  Widget _buildPieChart(){
+  Widget _buildTaskList(List<Task>allTasks, TaskProvider taskProvider){
+
+     List<Task> currentTasks = [];
+     if(isExpended && selectedIndex != null){
+      if(selectedIndex == 0){
+        currentTasks = taskProvider.urgentImportant;
+      }else if(selectedIndex == 1){
+        currentTasks = taskProvider.notUrgentImportant;
+      }else if(selectedIndex == 2){
+        currentTasks = taskProvider.urgentNotImportant;
+      }else if(selectedIndex == 3){
+        currentTasks = taskProvider.notUrgentNotImportant;
+      }
+     }else{
+      currentTasks = [
+      ...taskProvider.urgentImportant,
+      ...taskProvider.notUrgentImportant,
+      ...taskProvider.urgentNotImportant,
+      ...taskProvider.notUrgentNotImportant,
+      ];
+     } 
+    
+    currentTasks.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    final sortedList = currentTasks.toList();
+  
+
+
+    return AnimatedOpacity(
+      // opacity: isExpended ? 0.3 : 1.0,
+      opacity: isExpended ? 1 : 0,
+      duration: const Duration(milliseconds: 400),
+      child: Padding(
+        // padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.only(left: 400, top: 50, right: 20),
+        child: currentTasks.isEmpty? const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.assignment_outlined, size: 80, color: Colors.grey,),
+              SizedBox(height: 16),
+              Text('No work here', style: TextStyle(fontSize: 18)),
+            ],
+          ),
+        ):
+        ListView.builder(
+          itemCount: currentTasks.length,
+          itemBuilder: (context, index){
+            final task = currentTasks[index];
+            return Card(
+           
+              margin: const EdgeInsets.only(bottom: 10),
+              child: ListTile(
+                leading: Checkbox(
+                  value: task.isDone,
+                  onChanged: (value){
+                    taskProvider.toggleDone(_getTaskKey(task), task);
+                  },
+                ),
+                title: Text(
+                  task.title,
+                  style: TextStyle(
+                    decoration: task.isDone? TextDecoration.lineThrough:null,
+                  ),
+                ),
+                subtitle: task.deadline != null
+                ? Text(
+                    'Deadline: ${task.deadline!.day}/${task.deadline!.month}/${task.deadline!.year}'
+                  ):null ,
+                trailing: IconButton(
+                  onPressed: (){
+                    taskProvider.deleteTask(_getTaskKey(task), task);
+                  },
+                  icon: const Icon(Icons.delete, color: Colors.red)
+                ),
+              ),
+            );
+          },
+        )
+      ),
+    );
+  }
+
+
+  Widget _buildPieChart(TaskProvider taskProvider) {
+    final sections = [
+      taskProvider.urgentImportant.length.toDouble(),
+      taskProvider.notUrgentImportant.length.toDouble(),
+      taskProvider.urgentNotImportant.length.toDouble(),
+      taskProvider.notUrgentNotImportant.length.toDouble(),
+    ];
+
+    final colors = [Colors.red, Colors.cyan, Colors.green, Colors.amber];
+
     return AnimatedPositioned(
-      duration: Duration(milliseconds: 400),
-      curve: Curves.easeInOut,
-
-      top: isExpended ? 200 : 150,
-      left: isExpended ? 60 : 550,
-
-      child: AnimatedScale(
-        scale: isExpended? 0.9 : 1.5,
-        duration: Duration(milliseconds: 1000),
-        curve: Curves.easeInOutQuint,
-
-        child: SizedBox(
-        width: isExpended ? 200 : 300,
-        height: isExpended ? 200 : 300,
-
+      duration: const Duration(milliseconds: 700),
+      curve: Curves.easeOutQuart,
+      top: 100, // Cố định top hoặc điều chỉnh nhẹ
+      // CỐ ĐỊNH VỊ TRÍ KHI EXPANDED
+      left: isExpended 
+          ? 20 // Vị trí nằm hẳn bên trái khi mở danh sách
+          : MediaQuery.of(context).size.width * 0.5 - 155, // Nằm giữa khi thu nhỏ
+      
+      child: SizedBox(
+        width: 310,
+        height: 310,
         child: PieChart(
           PieChartData(
-            sectionsSpace: 2,
-            centerSpaceRadius: 40,
-            sections: _buildSections(),
+            sectionsSpace: 5,
+            centerSpaceRadius: 48,
+            sections: List.generate(4, (i) {
+              return PieChartSectionData(
+                value: sections[i] == 0 ? 0.1 : sections[i], // Tránh biểu đồ trống
+                color: colors[i],
+                title: sections[i].toInt() > 0 ? sections[i].toInt().toString() : '',
+                radius: selectedIndex == i ? 120 : 100, // Chỉ phóng to miếng bánh khi hover/tap
+                titleStyle: const TextStyle(
+                  fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white,
+                ),
+              );
+            }),
             pieTouchData: PieTouchData(
-              
-              touchCallback: (event, response){
-                
-                if (!event.isInterestedForInteractions ||
-                    response == null ||
-                    response.touchedSection == null) {
-                  return;
-                }
+              touchCallback: (FlTouchEvent event, PieTouchResponse? response) {
 
-                if(event is FlTapUpEvent){
+                final int ? currentIndex = response?.touchedSection?.touchedSectionIndex;
 
-                // if(event.isInterestedForInteractions && response != null && response.touchedSection != null) {
+                // 1. Xử lý Hover để tạo hiệu ứng phóng to miếng bánh (tăng trải nghiệm UI)
+                if (event is FlPointerHoverEvent || event is FlLongPressMoveUpdate) {
                   setState(() {
-
-                    int tappedIndex = response.touchedSection!.touchedSectionIndex;
-
-                    if(selectedIndex == tappedIndex && isExpended){
+                    selectedIndex = currentIndex;
+                  });
+                } 
+                // 2. Xử lý Tap để dịch chuyển biểu đồ sang trái và hiện danh sách
+                else if (event is FlTapUpEvent) {
+                  // final tappedIndex = response?.touchedSection?.touchedSectionIndex;
+                  setState(() {
+                    if (currentIndex == null || (tappedIndex == currentIndex && isExpended)) {
                       isExpended = false;
-                      selectedIndex = null;
-                    }else{
-                      selectedIndex = tappedIndex;
+                      tappedIndex = null;
+                    } else {
+                      tappedIndex = currentIndex;
                       isExpended = true;
-                     
                     }
                   });
                 }
-
-                if (event is FlPointerHoverEvent) {
-                  setState(() {
-                    selectedIndex =
-                        response.touchedSection?.touchedSectionIndex;
-                  });
-                }
-
-              }
-                
-            
-            )
+                // 3. Quan trọng: Không reset isExpended ở đây nếu event không hợp lệ
+              },
+            ),
           ),
         ),
       ),
-      )
-    );
-  }
-
-  Widget _buildTaskList(){
-    return AnimatedOpacity(
-      duration: Duration(milliseconds: 400),
-      opacity: isExpended ? 1 : 0,
-
-      child: Padding(
-        padding: const EdgeInsets.only(left: 400, top: 50, right: 20),
-          child: selectedIndex == null 
-          ? SizedBox() : ListView(
-              children: _getSelectedTasks().map((task){
-                return Card(
-                  margin: EdgeInsets.symmetric(vertical: 8),
-                  child: ListTile(
-                    title: Text(task.title),
-                  ),
-                );
-              }).toList(),
-          ),
-      ),
     );
   }
 
 
-  List<PieChartSectionData> _buildSections(){
-    final data = [
-      widget.urgentImportant.length.toDouble(),
-      widget.notUrgentImportant.length.toDouble(),
-      widget.urgentNotImportant.length.toDouble(),
-      widget.notUrgentNotImportant.length.toDouble(),
-    ];
-
-    final colors = [
-      Colors.red,
-      Color.fromARGB(255, 12, 206, 240),
-      Color.fromARGB(255, 15, 255, 31),
-      Color.fromARGB(255, 255, 238, 0),
-    ];
-
-    return List.generate(4, (index){
-      return PieChartSectionData(
-        value: data[index],
-        color: colors[index],
-        title: data[index].toInt().toString(),
-        radius: selectedIndex == index ? 110  : 90,
-      );
-    });
+  String _getTaskKey(Task task){
+    if(task.isDone) return TaskService.notUrgentImportantKey;
+    return TaskService.urgentImportantKey;
   }
-
-  List _getSelectedTasks(){
-    switch (selectedIndex){
-      case 0:
-        return widget.urgentImportant;
-      case 1:
-        return widget.notUrgentImportant;
-      case 2:
-        return widget.urgentNotImportant;
-      case 3: 
-        return widget.notUrgentNotImportant;
-      default:
-        return [];
-    }
-
-  }
-
 }
-
 

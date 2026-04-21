@@ -61,30 +61,50 @@ class _AllTaskScreenState extends State<AllTaskScreen>{
 
   Widget _buildTaskList(List<Task>allTasks, TaskProvider taskProvider){
 
-     List<Task> currentTasks = [];
-     if(isExpended && selectedIndex != null){
-      if(selectedIndex == 0){
-        currentTasks = taskProvider.urgentImportant;
-      }else if(selectedIndex == 1){
-        currentTasks = taskProvider.notUrgentImportant;
-      }else if(selectedIndex == 2){
-        currentTasks = taskProvider.urgentNotImportant;
-      }else if(selectedIndex == 3){
-        currentTasks = taskProvider.notUrgentNotImportant;
-      }
-     }else{
-      currentTasks = [
-      ...taskProvider.urgentImportant,
-      ...taskProvider.notUrgentImportant,
-      ...taskProvider.urgentNotImportant,
-      ...taskProvider.notUrgentNotImportant,
-      ];
-     } 
-    
-    currentTasks.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    final sortedList = currentTasks.toList();
-  
+     List<Task> currentTasks;
+    //  if(isExpended && selectedIndex != null){
+    //   if(selectedIndex == 0){
+    //     currentTasks = taskProvider.urgentImportant;
+    //   }else if(selectedIndex == 1){
+    //     currentTasks = taskProvider.notUrgentImportant;
+    //   }else if(selectedIndex == 2){
+    //     currentTasks = taskProvider.urgentNotImportant;
+    //   }else if(selectedIndex == 3){
+    //     currentTasks = taskProvider.notUrgentNotImportant;
+    //   }
+    //  }else{
+    //   currentTasks = [
+    //   ...taskProvider.urgentImportant,
+    //   ...taskProvider.notUrgentImportant,
+    //   ...taskProvider.urgentNotImportant,
+    //   ...taskProvider.notUrgentNotImportant,
+    //   ];
+    //  } 
 
+    if (isExpended && tappedIndex != null) {
+      if (tappedIndex == 0) currentTasks = [...taskProvider.urgentImportant];
+      else if (tappedIndex == 1) currentTasks = [...taskProvider.notUrgentImportant];
+      else if (tappedIndex == 2) currentTasks = [...taskProvider.urgentNotImportant];
+      else if (tappedIndex == 3) currentTasks = [...taskProvider.notUrgentNotImportant];
+      else currentTasks = [];
+    } else {
+      currentTasks = [...allTasks];
+    }
+      
+    // currentTasks.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    currentTasks.sort((a,b){
+      if (a.deadline == null && b.deadline != null) return 1;
+      if (a.deadline != null && b.deadline == null) return -1;
+
+      if (a.deadline != null && b.deadline != null){
+        return a.deadline!.compareTo(b.deadline!);
+      }
+
+      return b.createdAt.compareTo(a.createdAt);
+
+    });
+    // final sortedList = currentTasks.toList();
+  
 
     return AnimatedOpacity(
       // opacity: isExpended ? 0.3 : 1.0,
@@ -108,7 +128,7 @@ class _AllTaskScreenState extends State<AllTaskScreen>{
           itemBuilder: (context, index){
             final task = currentTasks[index];
             return Card(
-           
+              key: ValueKey('list_$tappedIndex'),
               margin: const EdgeInsets.only(bottom: 10),
               child: ListTile(
                 leading: Checkbox(

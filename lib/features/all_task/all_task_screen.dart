@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/adapters.dart';
+// import 'package:hive_flutter/adapters.dart';
 import 'package:provider/provider.dart';
 import 'package:todolist/services/task_service.dart';
 import '../../providers/task_provider.dart';
@@ -82,11 +82,17 @@ class _AllTaskScreenState extends State<AllTaskScreen>{
     //  } 
 
     if (isExpended && tappedIndex != null) {
-      if (tappedIndex == 0) currentTasks = [...taskProvider.urgentImportant];
-      else if (tappedIndex == 1) currentTasks = [...taskProvider.notUrgentImportant];
-      else if (tappedIndex == 2) currentTasks = [...taskProvider.urgentNotImportant];
-      else if (tappedIndex == 3) currentTasks = [...taskProvider.notUrgentNotImportant];
-      else currentTasks = [];
+      if (tappedIndex == 0) {
+        currentTasks = [...taskProvider.urgentImportant];
+      } else if (tappedIndex == 1) {
+        currentTasks = [...taskProvider.notUrgentImportant];
+      } else if (tappedIndex == 2) {
+        currentTasks = [...taskProvider.urgentNotImportant];
+      } else if (tappedIndex == 3) {
+        currentTasks = [...taskProvider.notUrgentNotImportant];
+      } else {
+        currentTasks = [];
+      }
     } else {
       currentTasks = [...allTasks];
     }

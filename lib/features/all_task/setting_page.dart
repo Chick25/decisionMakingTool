@@ -242,6 +242,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   if (_isLoginMode) {
                     // Đăng nhập
                     bool success = await auth.login(email, password);
+                    if (!mounted) return;
                     if (success) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Đăng nhập thành công!'), backgroundColor: Colors.green),
@@ -261,6 +262,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       return;
                     }
                     await auth.register(username, email, password);
+                    if (!mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Đăng ký thành công!'), backgroundColor: Colors.green),
                     );

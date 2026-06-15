@@ -11,6 +11,7 @@ import 'features/all_task/setting_page.dart';     // ← Đảm bảo tên file 
 import 'providers/auth_provider.dart';
 import 'providers/theme_provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';   // Đảm bảo có dòng này
+import 'package:path_provider/path_provider.dart';
 import 'providers/task_provider.dart';     // ← Thêm dòng này nếu chưa có
 
 void main() async{
@@ -18,10 +19,20 @@ void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   
   await Hive.initFlutter(); // Khởi tạo Hive cho Flutter
+
+  await Hive.openBox<Task>('tasksbox');
+  await Hive.openBox('authbox');
+  await Hive.openBox('tasks');  
+
+  // Hive.registerAdapter(TaskAdapter());
   
-  Hive.registerAdapter(TaskAdapter()); // Đăng ký Adapter đã sinh ở bước 2
+  var authbox = await Hive.openBox('authbox');
   
-  // await Hive.openBox<Task>('tasksBox');
+  // In ra để debug xem nó có rỗng không
+  print("Dữ liệu trong authbox: ${authbox.toMap()}");
+
+  
+  await Hive.openBox<Task>('tasksBox');
    // Mở hộp sẵn với tên 'tasksBox'
 
   runApp(
@@ -35,6 +46,7 @@ void main() async{
     ),
   );
 }
+
 
 class MainApp extends StatefulWidget {
   const MainApp({super.key});
@@ -122,132 +134,6 @@ class _MainAppState extends State<MainApp> {
       ),
     );
   }
-
-  // Widget _buildMatrixArea() {
-
-  //   final taskProvider = Provider.of<TaskProvider>(context);
-
-  //   return Builder(
-  //     builder: (context) {
-  //       return Center(
-  //         child: Container(
-  //           height: 850,
-  //           decoration: BoxDecoration(
-  //             borderRadius: BorderRadius.circular(20),
-  //           ),
-  //           child: Column(
-  //             children: [
-  //               Expanded(
-  //                 child: Row(
-  //                   children: [
-  //                     Expanded(
-  //                       child: QuadrantWidget(
-  //                         title: 'Emergency & Important',
-  //                         color: Colors.red,
-  //                         tasks: urgentImportant,
-  //                         onAdd: (){
-  //                           showAddTaskDialog(context, 'Emergency & Important', (task) async{
-  //                             await taskProvider.addTask(TaskService.urgentImportantKey, task);
-  //                           });
-  //                         },
-  //                         onToggle: (task) async{
-  //                           await taskProvider.toggleDone(TaskService.urgentImportantKey, task);
-  //                         },
-  //                         onDelete: (task) async{
-  //                           await taskProvider.deleteTask(TaskService.urgentImportantKey, task);
-  //                         },
-  //                         // onAdd: () => showAddTaskDialog(context, 'Emergency & Important', (task) {
-  //                         //   setState(() => urgentImportant.add(task));
-  //                         // }),
-  //                         // onToggle: (task) => setState(() => task.isDone = !task.isDone),
-  //                         // onDelete: (task) => setState(() => urgentImportant.remove(task)),
-  //                       ),
-  //                     ),
-  //                     Expanded(
-  //                       child: QuadrantWidget(
-  //                         title: 'Not Emergency but Important',
-  //                         color: const Color.fromARGB(255, 12, 206, 240),
-  //                         tasks: notUrgentImportant,
-  //                         onAdd: (){
-  //                           showAddTaskDialog(context, 'Not Emergency but Important', (task) async{
-  //                             await taskProvider.addTask(TaskService.notUrgentImportantKey, task);
-  //                           });
-  //                         },
-  //                         onToggle: (task) async{
-  //                           await taskProvider.toggleDone(TaskService.notUrgentImportantKey, task);
-  //                         },
-  //                         onDelete: (task) async{
-  //                           await taskProvider.deleteTask(TaskService.notUrgentImportantKey, task);
-  //                         },
-  //                         // onAdd: () => showAddTaskDialog(context, 'Not Emergency but Important', (task) {
-  //                         //   setState(() => notUrgentImportant.add(task));
-  //                         // }),
-  //                         // onToggle: (task) => setState(() => task.isDone = !task.isDone),
-  //                         // onDelete: (task) => setState(() => notUrgentImportant.remove(task)),
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 ),
-  //               ),
-  //               Expanded(
-  //                 child: Row(
-  //                   children: [
-  //                     Expanded(
-  //                       child: QuadrantWidget(
-  //                         title: 'Emergency but not Important',
-  //                         color: const Color.fromARGB(255, 15, 255, 31),
-  //                         tasks: urgentNotImportant,
-  //                         onAdd: () {
-  //                           showAddTaskDialog(context, 'Emergency but not Important', (task) async {
-  //                             await taskProvider.addTask(TaskService.urgentNotImportantKey, task);
-  //                           });
-  //                         },
-  //                         onToggle: (task) async {
-  //                           await taskProvider.toggleDone(TaskService.urgentNotImportantKey, task);
-  //                         },
-  //                         onDelete: (task) async {
-  //                           await taskProvider.deleteTask(TaskService.urgentNotImportantKey, task);
-  //                         },
-  //                         // onAdd: () => showAddTaskDialog(context, 'Emergency but not Important', (task) {
-  //                         //   setState(() => urgentNotImportant.add(task));
-  //                         // }),
-  //                         // onToggle: (task) => setState(() => task.isDone = !task.isDone),
-  //                         // onDelete: (task) => setState(() => urgentNotImportant.remove(task)),
-  //                       ),
-  //                     ),
-  //                     Expanded(
-  //                       child: QuadrantWidget(
-  //                         title: 'Not Emergency & not Important',
-  //                         color: const Color.fromARGB(255, 255, 238, 0),
-  //                         tasks: notUrgentNotImportant,
-  //                         onAdd: () {
-  //                           showAddTaskDialog(context, 'Not Emergency & not Important', (task) async {
-  //                             await taskProvider.addTask(TaskService.notUrgentNotImportantKey, task);
-  //                           });
-  //                         },
-  //                         onToggle: (task) async {
-  //                           await taskProvider.toggleDone(TaskService.notUrgentNotImportantKey, task);
-  //                         },
-  //                         onDelete: (task) async {
-  //                           await taskProvider.deleteTask(TaskService.notUrgentNotImportantKey, task);
-  //                         },
-  //                         // onAdd: () => showAddTaskDialog(context, 'Not Emergency & not Important', (task) {
-  //                         //   setState(() => notUrgentNotImportant.add(task));
-  //                         // }),
-  //                         // onToggle: (task) => setState(() => task.isDone = !task.isDone),
-  //                         // onDelete: (task) => setState(() => notUrgentNotImportant.remove(task)),
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 ),
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
 
     Widget _buildMatrixArea() {
     return Consumer<TaskProvider>(

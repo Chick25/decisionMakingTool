@@ -20,6 +20,10 @@ void main() async{
   
   await Hive.initFlutter(); // Khởi tạo Hive cho Flutter
 
+  if (!Hive.isAdapterRegistered(0)) { // Giả sử typeId của bạn là 0
+    Hive.registerAdapter(TaskAdapter());
+  }
+
   await Hive.openBox<Task>('tasksbox');
   await Hive.openBox('authbox');
   await Hive.openBox('tasks');  

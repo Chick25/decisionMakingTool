@@ -5,9 +5,18 @@ import '../../providers/task_provider.dart';
 import '../../models/task.dart';
 import '../../services/task_service.dart';
 
-class CompletedScreen extends StatelessWidget {
+enum CompletedFilter { all, urgent, notUrgent }
+
+class CompletedScreen extends StatefulWidget {
   const CompletedScreen({super.key});
 
+  @override
+  State<CompletedScreen> createState() => _CompletedScreenState();
+}
+
+class _CompletedScreenState extends State<CompletedScreen> {
+  // const CompletedScreen({super.key});
+  CompletedFilter _filter = CompletedFilter.all;
   // Hàm xác định Key để xóa/tương tác
   String _findKeyForTask(Task task, TaskProvider provider) {
     if (provider.urgentImportant.contains(task)) return TaskService.urgentImportantKey;
@@ -20,6 +29,7 @@ class CompletedScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA), // Màu nền xám nhạt cực sang
+      appBar: AppBar(title: const Text("Lịch sử hoàn thành")),
       body: Consumer<TaskProvider>(
         builder: (context, provider, child) {
           final completedTasks = [
@@ -28,6 +38,14 @@ class CompletedScreen extends StatelessWidget {
             ...provider.urgentNotImportant,
             ...provider.notUrgentNotImportant
           ].where((task) => task.isDone).toList();
+
+          final filteredTasks = completedTasks.where((task) {
+            if (_filter == CompletedFilter.all) return true;
+            // Giả định: Urgent là nhóm UrgentImportant hoặc UrgentNotImportant
+            bool isUrgent = provider.urgentImportant.contains(task) || 
+                            provider.urgentNotImportant.contains(task);
+            return _filter == CompletedFilter.urgent ? isUrgent : !isUrgent;
+          }).toList();
 
           return CustomScrollView(
             slivers: [
@@ -69,26 +87,46 @@ class CompletedScreen extends StatelessWidget {
                 ),
               ),
 
-              // Danh sách Task
-              completedTasks.isEmpty
-                  ? const SliverFillRemaining(
-                      child: Center(
-                        child: Text("Keep crushing your goals!"),
+              // Thêm đoạn này vào ngay sau SliverAppBar bên trong slivers:
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: CompletedFilter.values.map((f) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: ChoiceChip(
+                        label: Text(f.name.toUpperCase()),
+                        selected: _filter == f,
+                        onSelected: (_) => setState(() => _filter = f),
                       ),
-                    )
-                  : SliverPadding(
-                      padding: const EdgeInsets.all(16),
-                      sliver: SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            final task = completedTasks[index];
-                            final key = _findKeyForTask(task, provider);
-                            return _buildModernTaskCard(context, task, key, provider);
-                          },
-                          childCount: completedTasks.length,
-                        ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+
+              // Danh sách Task
+              filteredTasks.isEmpty // Thay vì completedTasks.isEmpty
+                ? const SliverFillRemaining(
+                    child: Center(
+                      child: Text("Không có công việc nào ở mục này"),
+                    ),
+                  )
+                : SliverPadding(
+                    padding: const EdgeInsets.all(16),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final task = filteredTasks[index]; // Lấy từ filteredTasks
+                          final key = _findKeyForTask(task, provider);
+                          return _buildModernTaskCard(context, task, key, provider);
+                        },
+                        childCount: filteredTasks.length, // Đếm filteredTasks
                       ),
                     ),
+                  ),
             ],
           );
         },

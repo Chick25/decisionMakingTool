@@ -13,6 +13,9 @@ import 'providers/theme_provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';   // Đảm bảo có dòng này
 import 'package:path_provider/path_provider.dart';
 import 'providers/task_provider.dart';     // ← Thêm dòng này nếu chưa có
+import 'features/all_task/completed_screen.dart'; // ← Thêm dòng này
+import 'features/all_task/today_screen.dart'; // ← Thêm dòng này
+
 
 void main() async{
 
@@ -250,6 +253,10 @@ class _MainAppState extends State<MainApp> {
           urgentNotImportant: urgentNotImportant,
           notUrgentNotImportant: notUrgentNotImportant,
         );
+      case 2:
+        return const CompletedScreen();  
+      case 3:
+        return const TodayScreen();
       case 4:
         return const SettingsScreen();   // ← Sửa ở đây
       default:

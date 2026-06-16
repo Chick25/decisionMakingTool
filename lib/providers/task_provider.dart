@@ -74,4 +74,14 @@ class TaskProvider extends ChangeNotifier {
     await loadAllTask();
   }
 
+  // Trong TaskProvider.dart
+  List<Task> get completedTasks {
+    return [
+      ...urgentImportant,
+      ...notUrgentImportant,
+      ...urgentNotImportant,
+      ...notUrgentNotImportant
+    ].where((task) => task.isDone).toList();
+  }
+
 }

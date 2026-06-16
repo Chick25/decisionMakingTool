@@ -18,7 +18,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _isLoginMode = true;
 
   // Các biến trạng thái cho phần Settings
-  bool _darkMode = false;
+  final bool _darkMode = false;
   bool _notificationsEnabled = true;
   String _defaultReminder = "15 phút trước";
 
@@ -51,6 +51,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   _passwordController.dispose();
   super.dispose();
 }
+  @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
 

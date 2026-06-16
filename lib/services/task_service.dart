@@ -71,7 +71,8 @@ class TaskService {
   static const String urgentNotImportantKey = 'urgent_not_important';
   static const String notUrgentNotImportantKey = 'not_urgent_not_important';
 
-  Future<Box> get _box async => await Hive.openBox(_boxName);
+  // Future<Box> get _box async => await Hive.openBox(_boxName);
+  Future<Box<List<dynamic>>> get _box async => await Hive.openBox<List<dynamic>>(_boxName);
 
   // Lấy danh sách task an toàn cho Web
   Future<List<Task>> getTasks(String key) async {

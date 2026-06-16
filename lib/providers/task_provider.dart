@@ -19,16 +19,16 @@ class TaskProvider extends ChangeNotifier {
   //Load data from HIve
   Future<void> loadAllTask() async{
 
-    final box = Hive.box<Task>('tasksBox');
+    final box = Hive.box<List<dynamic>>('tasks');
     // urgentImportant = await _taskService.getTasks(TaskService.urgentImportantKey);
     // notUrgentImportant = await _taskService.getTasks(TaskService.notUrgentImportantKey);
     // urgentNotImportant = await _taskService.getTasks(TaskService.urgentNotImportantKey);
     // notUrgentNotImportant = await _taskService.getTasks(TaskService.notUrgentNotImportantKey);
 
-    urgentImportant = (box.get(TaskService.urgentImportantKey) as List<Task>?)?.cast<Task>() ?? [];
-    notUrgentImportant = (box.get(TaskService.notUrgentImportantKey) as List<Task>?)?.cast<Task>() ?? [];
-    urgentNotImportant = (box.get(TaskService.urgentNotImportantKey) as List<Task>?)?.cast<Task>() ?? [];
-    notUrgentNotImportant = (box.get(TaskService.notUrgentNotImportantKey) as List<Task>?)?.cast<Task>() ?? [];
+    urgentImportant = (box.get(TaskService.urgentImportantKey) as List<dynamic>?)?.cast<Task>() ?? [];
+    notUrgentImportant = (box.get(TaskService.notUrgentImportantKey) as List<dynamic>?)?.cast<Task>() ?? [];
+    urgentNotImportant = (box.get(TaskService.urgentNotImportantKey) as List<dynamic>?)?.cast<Task>() ?? [];
+    notUrgentNotImportant = (box.get(TaskService.notUrgentNotImportantKey) as List<dynamic>?)?.cast<Task>() ?? [];
     notifyListeners();
   }
 

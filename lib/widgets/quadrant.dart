@@ -157,6 +157,8 @@ class QuadrantWidget extends StatelessWidget {
                     ),
                   )
                 : ListView.builder(
+                    shrinkWrap: true, // Thêm dòng này
+                    physics: const ClampingScrollPhysics(),
                     padding: const EdgeInsets.all(8),
                     itemCount: tasks.length,
                     itemBuilder: (context, index) {

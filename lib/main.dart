@@ -24,9 +24,9 @@ void main() async{
     Hive.registerAdapter(TaskAdapter());
   }
 
-  await Hive.openBox<Task>('tasksbox');
+  // await Hive.openBox<Task>('tasksbox');
   await Hive.openBox('authbox');
-  await Hive.openBox('tasks');  
+  await Hive.openBox<List<dynamic>>('tasks');  
 
   // Hive.registerAdapter(TaskAdapter());
   

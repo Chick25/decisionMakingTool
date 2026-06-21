@@ -1,0 +1,136 @@
+# Query: withOpacity
+# ContextLines: 1
+
+38 results - 5 files
+
+lib\main.dart:
+  259                                //       BoxShadow(
+  260:                               //         color: Colors.black.withOpacity(0.05),
+  261                                //         blurRadius: 8,
+
+lib\features\all_task\all_task_screen.dart:
+  97                BoxShadow(
+  98:                 color: const Color(0xFF0F172A)..withAlpha(0.02),
+  99                  blurRadius: 18,
+
+lib\features\all_task\completed_screen.dart:
+  238                              shape: BoxShape.circle,
+  239:                             color: Colors.white..withAlpha(0.05),
+  240                            ),
+
+  250                              shape: BoxShape.circle,
+  251:                             color: Colors.white..withAlpha(0.03),
+  252                            ),
+
+  262                                decoration: BoxDecoration(
+  263:                                 color: Colors.white..withAlpha(0.12),
+  264                                  shape: BoxShape.circle,
+
+  275                                style: GoogleFonts.inter(
+  276:                                 color: Colors.white..withAlpha(0.85), 
+  277                                  fontSize: 13,
+
+  298                        border: Border.all(
+  299:                         color: isDark ? const Color(0xFF334155)..withAlpha(0.5) : const Color(0xFFE2E8F0),
+  300                          width: 1,
+
+  303                          BoxShadow(
+  304:                           color: Colors.black..withAlpha(isDark ? 0.15 : 0.02),
+  305                            blurRadius: 16,
+
+  405                        border: Border.all(
+  406:                         color: isDark ? const Color(0xFF334155)..withAlpha(0.5) : const Color(0xFFE2E8F0),
+  407                          width: 1,
+
+  410                          BoxShadow(
+  411:                           color: Colors.black..withAlpha(isDark ? 0.15 : 0.02),
+  412                            blurRadius: 16,
+
+  496                      decoration: BoxDecoration(
+  497:                       color: isDark ? const Color(0xFF1E293B).withAlpha(0.4) : const Color(0xFFF1F5F9).withOpacity(0.6),
+  498                        borderRadius: BorderRadius.circular(24),
+  499                        border: Border.all(
+  500:                         color: isDark ? const Color(0xFF334155)..withAlpha(0.3) : const Color(0xFFE2E8F0).withOpacity(0.7),
+  501                          width: 1,
+
+  587                                          BoxShadow(
+  588:                                           color: Colors.black..withAlpha(0.03),
+  589                                            blurRadius: 8,
+
+  756              border: Border.all(
+  757:               color: isDark ? const Color(0xFF334155)..withAlpha(0.3) : const Color(0xFFE2E8F0),
+  758              ),
+
+  766                    decoration: BoxDecoration(
+  767:                     color: color.withOpacity(0.05),
+  768                      borderRadius: BorderRadius.circular(7),
+
+  778                        gradient: LinearGradient(
+  779:                         colors: [color, color..withAlpha(0.85)],
+  780                        ),
+
+  812      if (insight.type == 'success') {
+  813:       bgColor = isDark ? const Color(0xFF064E3B).withOpacity(0.2) : const Color(0xFFECFDF5);
+  814:       borderColor = isDark ? const Color(0xFF059669).withOpacity(0.3) : const Color(0xFFA7F3D0);
+  815        textColor = isDark ? const Color(0xFFA7F3D0) : const Color(0xFF065F46);
+  816:       tagBgColor = isDark ? const Color(0xFF047857) : const Color(0xFF34D399).withOpacity(0.25);
+  817      } else if (insight.type == 'warn') {
+  818:       bgColor = isDark ? const Color(0xFF78350F).withOpacity(0.15) : const Color(0xFFFFFBEB);
+  819:       borderColor = isDark ? const Color(0xFFD97706).withOpacity(0.2) : const Color(0xFFFEF3C7);
+  820        textColor = isDark ? const Color(0xFFFDE68A) : const Color(0xFF92400E);
+  821:       tagBgColor = isDark ? const Color(0xFFB45309) : const Color(0xFFFBBF24).withOpacity(0.25);
+  822      } else {
+  823        bgColor = isDark ? const Color(0xFF1E293B) : Colors.white;
+  824:       borderColor = isDark ? const Color(0xFF334155).withOpacity(0.5) : const Color(0xFFE2E8F0);
+  825        textColor = isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569);
+  826:       tagBgColor = isDark ? const Color(0xFF475569) : const Color(0xFFCBD5E1).withOpacity(0.4);
+  827      }
+
+  841              decoration: BoxDecoration(
+  842:               color: isDark ? Colors.white.withOpacity(0.06) : Colors.white,
+  843                borderRadius: BorderRadius.circular(8),
+
+  845                  BoxShadow(
+  846:                   color: Colors.black.withOpacity(0.01),
+  847                    blurRadius: 4,
+
+  913          border: Border.all(
+  914:           color: isDark ? const Color(0xFF334155).withOpacity(0.5) : const Color(0xFFF1F5F9),
+  915            width: 1,
+
+  918            BoxShadow(
+  919:             color: Colors.black.withOpacity(isDark ? 0.2 : 0.02),
+  920              blurRadius: 12,
+
+  950                          decoration: BoxDecoration(
+  951:                           color: const Color(0xFF10B981).withOpacity(isDark ? 0.15 : 0.08),
+  952                            shape: BoxShape.circle,
+
+  982                                    decoration: BoxDecoration(
+  983:                                     color: (qDesign['color'] as Color).withOpacity(0.08),
+  984                                      borderRadius: BorderRadius.circular(4),
+
+lib\features\all_task\setting_page.dart:
+  380        decoration: BoxDecoration(
+  381:         color: isDark ? qc.accent.withOpacity(0.15) : qc.bg,
+  382          borderRadius: BorderRadius.circular(8),
+  383          border: Border.all(
+  384:           color: isDark ? qc.accent.withOpacity(0.3) : qc.border,
+  385          ),
+
+  554                        elevation: 0,
+  555:                       backgroundColor: const Color(0xFF6366F1).withOpacity(0.12),
+  556                        foregroundColor: const Color(0xFF6366F1),
+
+lib\features\all_task\today_screen.dart:
+  154            BoxShadow(
+  155:             color: Colors.black.withOpacity(0.02),
+  156              blurRadius: 10,
+
+  325            BoxShadow(
+  326:             color: Colors.black.withOpacity(0.02),
+  327              blurRadius: 10,
+
+  499                              decoration: BoxDecoration(
+  500:                               color: categoryColor.withOpacity(0.08),
+  501                                borderRadius: BorderRadius.circular(6),

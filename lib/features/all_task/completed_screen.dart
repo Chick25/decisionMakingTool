@@ -14,7 +14,7 @@ class CompletedScreen extends StatefulWidget {
   State<CompletedScreen> createState() => _CompletedScreenState();
 }
 
-// Lớp tiện ích để giữ dữ liệu gợi ý của huấn luyện viên năng suất
+// Lớp tiện ích giữ thông tin gợi ý từ huấn luyện viên năng suất
 class CoachInsight {
   final String type; // 'success', 'warn', 'neutral'
   final String title; // 'Điểm sáng', 'Lưu tâm', 'Lời khuyên'
@@ -32,7 +32,7 @@ class CoachInsight {
 class _CompletedScreenState extends State<CompletedScreen> {
   CompletedFilter _filter = CompletedFilter.all;
 
-  // Xác định Key nguyên bản để tương tác với cơ sở dữ liệu và Provider
+  // Tìm Key nguyên bản tương thích với cơ sở dữ liệu và Provider
   String _findKeyForTask(Task task, TaskProvider provider) {
     if (provider.urgentImportant.contains(task)) return TaskService.urgentImportantKey;
     if (provider.notUrgentImportant.contains(task)) return TaskService.notUrgentImportantKey;
@@ -40,7 +40,7 @@ class _CompletedScreenState extends State<CompletedScreen> {
     return TaskService.notUrgentNotImportantKey;
   }
 
-  // Khởi tạo các gợi ý định hướng thông minh dựa trên phân bổ số liệu thực tế
+  // Khởi tạo các gợi ý định hướng thông minh đồng bộ logic cũ
   List<CoachInsight> _generateInsights({
     required int total,
     required double rate,
@@ -65,7 +65,7 @@ class _CompletedScreenState extends State<CompletedScreen> {
       return list;
     }
 
-    // 1. Phân tích tồn đọng Q1 (Khẩn cấp & Quan trọng)
+    // 1. Phân tích tồn đọng Q1
     final pendingQ1 = q1Total - q1Completed;
     if (pendingQ1 > 1) {
       list.add(CoachInsight(
@@ -76,7 +76,7 @@ class _CompletedScreenState extends State<CompletedScreen> {
       ));
     }
 
-    // 2. Đánh giá mật độ công việc vùng Q2 (Cốt lõi cải tiến năng lực dài hạn)
+    // 2. Đánh giá mật độ công việc vùng Q2
     if (q2Total >= 2) {
       list.add(CoachInsight(
         type: 'success',
@@ -93,28 +93,28 @@ class _CompletedScreenState extends State<CompletedScreen> {
       ));
     }
 
-    // 3. Phân tích các việc xao nhãng Q3 (Khẩn cấp nhưng ít quan trọng)
+    // 3. Phân tích gánh nặng xao nhãng Q3
     final pendingQ3 = q3Total - q3Completed;
     if (pendingQ3 >= 2) {
       list.add(CoachInsight(
         type: 'warn',
         title: 'LƯU TÂM',
-        text: 'Hiện đang có $pendingQ3 công việc Khẩn cấp nhưng Ít quan trọng (Q3). Đôi khi đây chỉ là các việc xen ngang gây xao nhãng. Hãy cân nhắc gom nhóm làm nhanh hoặc ủy quyền nhé.',
+        text: 'Hiện đang có $pendingQ3 công việc Khẩn cấp nhưng Ít quan trọng (Q3). Đôi khi đây chỉ là các việc xen ngang gây xao nhãng. Hãy cân nhắc gom nhóm làm nhanh hoặc ủy quyền.',
         icon: Icons.gpp_maybe_rounded,
       ));
     }
 
-    // 4. Xem xét lãng phí thời gian Q4 (Ít giá trị)
+    // 4. Xem xét lãng phí thời gian Q4
     if (q4Total >= 3) {
       list.add(CoachInsight(
         type: 'warn',
         title: 'LƯU TÂM',
-        text: 'Bạn ghi nhận khá nhiều việc trong nhóm Q4 ($q4Total việc). Hãy can đảm gạch bớt phần lớn công việc ở nhóm này để giải phóng tâm trí và quỹ thời gian vàng ngọc nhé!',
+        text: 'Bạn ghi nhận khá nhiều việc trong nhóm Q4 ($q4Total việc). Hãy can đảm gạch bớt phần lớn công việc ở nhóm này để giải phóng tâm trí và quỹ thời gian nhé!',
         icon: Icons.lightbulb_outline_rounded,
       ));
     }
 
-    // 5. Khen thưởng tỷ lệ hoàn thiện xuất sắc
+    // 5. Tỉ lệ hoàn thiện xuất sắc
     if (rate >= 75) {
       list.add(CoachInsight(
         type: 'success',
@@ -126,16 +126,16 @@ class _CompletedScreenState extends State<CompletedScreen> {
 
     return list;
   }
-
+  
   @override
   Widget build(BuildContext context) {
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
-
+    final theme = Theme.of(context);
+    final bool isDark = theme.brightness == Brightness.dark;
+    
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+      backgroundColor: Colors.transparent, // Đồng bộ nền mượt với Scaffold mẹ ở main.dart
       body: Consumer<TaskProvider>(
         builder: (context, provider, child) {
-          // Lấy danh sách nhiệm vụ đã hoàn thiện theo logic của bạn
           final completedTasks = [
             ...provider.urgentImportant,
             ...provider.notUrgentImportant,
@@ -150,7 +150,6 @@ class _CompletedScreenState extends State<CompletedScreen> {
             return _filter == CompletedFilter.urgent ? isUrgent : !isUrgent;
           }).toList();
 
-          // Tính toán số liệu thống kê như bên React
           final allTasks = [
             ...provider.urgentImportant,
             ...provider.notUrgentImportant,
@@ -163,7 +162,6 @@ class _CompletedScreenState extends State<CompletedScreen> {
           final int pending = total - completed;
           final double rate = total > 0 ? (completed / total) * 100 : 0.0;
 
-          // Phân phối theo từng Góc phần tư
           final int q1Total = provider.urgentImportant.length;
           final int q1Completed = provider.urgentImportant.where((t) => t.isDone).length;
 
@@ -176,7 +174,6 @@ class _CompletedScreenState extends State<CompletedScreen> {
           final int q4Total = provider.notUrgentNotImportant.length;
           final int q4Completed = provider.notUrgentNotImportant.where((t) => t.isDone).length;
 
-          // Nhận các gợi ý từ Huấn luyện viên
           final insights = _generateInsights(
             total: total,
             rate: rate,
@@ -193,89 +190,100 @@ class _CompletedScreenState extends State<CompletedScreen> {
           return CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
-              // 1. Header nghệ thuật đặc thù
-              SliverAppBar(
-                expandedHeight: 200.0,
-                floating: false,
-                pinned: true,
-                elevation: 0,
-                backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFF6366F1),
-                flexibleSpace: FlexibleSpaceBar(
-                  expandedTitleScale: 1.15,
-                  centerTitle: true,
-                  titlePadding: const EdgeInsets.only(bottom: 16),
-                  title: Text(
-                    "Đã Hoàn Thành",
-                    style: GoogleFonts.philosopher(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      fontSize: 22,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                  background: Stack(
-                    fit: StackFit.expand,
+              // 1. HEADER KHÔNG CHỒNG CHÉO (SliverToBoxAdapter thay thế cho SliverAppBar lỗi vỡ chữ)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 24.0),
+                  child: Column(
                     children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: isDark 
-                              ? [const Color(0xFF1E1B4B), const Color(0xFF311042)]
-                              : [const Color(0xFF4F46E5), const Color(0xFF06B6D4)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        right: -30,
-                        top: -30,
-                        child: Container(
-                          width: 160,
-                          height: 160,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white.withOpacity(0.05),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        left: -15,
-                        bottom: 15,
-                        child: Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white.withOpacity(0.03),
-                          ),
-                        ),
-                      ),
-                      Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const SizedBox(height: 10),
-                            Container(
-                              padding: const EdgeInsets.all(10),
+                      // Thanh điều hướng trên cùng phẳng kiểu Nordic (Xây dựng an toàn)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Nút tròn quay lại tinh xảo bảo vệ bằng container chống lỗi pop
+                          InkWell(
+                            onTap: () => Navigator.maybePop(context),
+                            borderRadius: BorderRadius.circular(50),
+                            child: Container(
+                              width: 42,
+                              height: 42,
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.12),
+                                color: theme.cardColor,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: theme.dividerColor,
+                                  width: 1,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.02),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  )
+                                ],
+                              ),
+                              child: Icon(
+                                Icons.arrow_back_ios_new_rounded,
+                                size: 15,
+                                color: isDark ? Colors.white70 : const Color(0xFF334155),
+                              ),
+                            ),
+                          ),
+                          
+                          // Tiêu đề căn trung tâm chuẩn mượt
+                          Text(
+                            "Đã Hoàn Thành",
+                            style: GoogleFonts.inter(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.6,
+                              color: theme.textTheme.titleLarge?.color,
+                            ),
+                          ),
+                          
+                          // Widget trống bổ trợ cân đối khoảng cách dòng đều đặn
+                          const SizedBox(width: 42),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 20),
+
+                      // Banner chào mừng thiết kế bóng phẳng (Flat Accent Banner)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF1F5F9).withOpacity(0.55),
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(
+                            color: theme.dividerColor,
+                            width: 1,
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF4F46E5).withOpacity(0.1),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
-                                Icons.verified_rounded, 
-                                color: Colors.white, 
-                                size: 34,
+                                Icons.verified_user_rounded, 
+                                color: Color(0xFF4F46E5), 
+                                size: 28,
                               ),
                             ),
-                            const SizedBox(height: 10),
+                            const SizedBox(height: 12),
                             Text(
-                              "Tích lũy: $completed nhiệm vụ hoàn thành",
+                              "Bạn đã hoàn thành $completed tác vụ",
                               style: GoogleFonts.inter(
-                                color: Colors.white.withOpacity(0.85), 
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
+                                color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
+                                fontSize: 13, 
+                                // fontSize: 13,
+                                fontWeight: FontWeight.w600,
                               ),
+                              textAlign: TextAlign.center,
                             ),
                           ],
                         ),
@@ -285,65 +293,58 @@ class _CompletedScreenState extends State<CompletedScreen> {
                 ),
               ),
 
-              // 2. Thẻ hiển thị TIẾN TRÌNH HOÀN THIỆN (Radial Circular Progress)
+              // 2. Thẻ TIẾN TRÌNH HOÀN THIỆN (Radial Circular Progress)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+                  padding: const EdgeInsets.only(bottom: 16.0),
                   child: Container(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(22),
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF1E293B) : Colors.white,
-                      borderRadius: BorderRadius.circular(24),
+                      color: theme.cardColor,
+                      borderRadius: BorderRadius.circular(28),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF334155).withOpacity(0.5) : const Color(0xFFE2E8F0),
+                        color: theme.dividerColor,
                         width: 1,
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(isDark ? 0.15 : 0.02),
-                          blurRadius: 16,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
                     ),
                     child: Column(
                       children: [
                         Text(
                           "TIẾN TRÌNH HOÀN THIỆN",
                           style: GoogleFonts.inter(
-                            fontSize: 11,
+                            fontSize: 10.5,
                             fontWeight: FontWeight.bold,
-                            color: const Color(0xFF94A3B8),
+                            color: theme.textTheme.bodySmall?.color,
                             letterSpacing: 1.2,
                           ),
                         ),
-                        const SizedBox(height: 20),
-                        // Circular Progress Stack mượt mà
+                        const SizedBox(height: 24),
+                        // Vòng hiển thị tiến độ Radial mượt mà như SVG
                         SizedBox(
-                          width: 140,
-                          height: 140,
+                          width: 120,
+                          height: 120,
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
                               SizedBox(
-                                width: 130,
-                                height: 130,
+                                width: 110,
+                                height: 110,
                                 child: CircularProgressIndicator(
                                   value: 1.0,
-                                  strokeWidth: 10,
+                                  strokeWidth: 7,
                                   valueColor: AlwaysStoppedAnimation<Color>(
-                                    isDark ? const Color(0xFF111827) : const Color(0xFFF1F5F9),
+                                    isDark ? const Color(0xFF161616) : const Color(0xFFF1F5F9),
                                   ),
                                 ),
                               ),
                               SizedBox(
-                                width: 130,
-                                height: 130,
+                                width: 110,
+                                height: 110,
                                 child: CircularProgressIndicator(
                                   value: rate / 100,
-                                  strokeWidth: 10,
+                                  strokeWidth: 7,
                                   strokeCap: StrokeCap.round,
-                                  valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF6366F1)),
+                                  valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF4F46E5)),
                                 ),
                               ),
                               Column(
@@ -352,18 +353,19 @@ class _CompletedScreenState extends State<CompletedScreen> {
                                   Text(
                                     "${rate.round()}%",
                                     style: GoogleFonts.inter(
-                                      fontSize: 28,
+                                      fontSize: 24,
                                       fontWeight: FontWeight.w800,
-                                      color: isDark ? const Color(0xFFF8FAFC) : const Color(0xFF1E293B),
+                                      color: theme.textTheme.titleLarge?.color,
+                                      letterSpacing: -0.8,
                                     ),
                                   ),
-                                  const SizedBox(height: 2),
+                                  const SizedBox(height: 1),
                                   Text(
-                                    "ĐÃ XONG",
+                                    "Xong",
                                     style: GoogleFonts.inter(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w800,
-                                      color: const Color(0xFF94A3B8),
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.bold,
+                                      color: theme.textTheme.bodySmall?.color,
                                       letterSpacing: 0.5,
                                     ),
                                   ),
@@ -372,17 +374,17 @@ class _CompletedScreenState extends State<CompletedScreen> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 22),
-                        const Divider(height: 1, thickness: 1, color: Color(0xFFF1F5F9)),
+                        const SizedBox(height: 24),
+                        Container(height: 1, color: theme.dividerColor),
                         const SizedBox(height: 18),
-                        // Ba mốc hiển thị chi tiết chỉ số
+                        // Ba mốc hiển thị chi tiết các chỉ số
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             _buildStatColumn("Tổng việc", "$total", isDark),
-                            Container(width: 1, height: 32, color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+                            Container(width: 1, height: 28, color: theme.dividerColor),
                             _buildStatColumn("Đã xong", "$completed", isDark, valueColor: const Color(0xFF10B981)),
-                            Container(width: 1, height: 32, color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+                            Container(width: 1, height: 28, color: theme.dividerColor),
                             _buildStatColumn("Chờ làm", "$pending", isDark, valueColor: const Color(0xFFF59E0B)),
                           ],
                         ),
@@ -395,54 +397,47 @@ class _CompletedScreenState extends State<CompletedScreen> {
               // 3. Thẻ PHÂN PHỐI THEO GÓC PHẦN TƯ (Dual Process Meters)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                  padding: const EdgeInsets.only(bottom: 16.0),
                   child: Container(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(22),
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF1E293B) : Colors.white,
-                      borderRadius: BorderRadius.circular(24),
+                      color: theme.cardColor,
+                      borderRadius: BorderRadius.circular(28),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF334155).withOpacity(0.5) : const Color(0xFFE2E8F0),
+                        color: theme.dividerColor,
                         width: 1,
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(isDark ? 0.15 : 0.02),
-                          blurRadius: 16,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.trending_up, color: Color(0xFF10B981), size: 18),
+                            const Icon(Icons.trending_up, color: Color(0xFF10B981), size: 16),
                             const SizedBox(width: 8),
                             Text(
                               "PHÂN PHỐI THEO GÓC PHẦN TƯ",
                               style: GoogleFonts.inter(
-                                fontSize: 11,
+                                fontSize: 10.5,
                                 fontWeight: FontWeight.bold,
-                                color: const Color(0xFF94A3B8),
+                                color: theme.textTheme.bodySmall?.color,
                                 letterSpacing: 1.2,
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 8),
                         Text(
-                          "Chuyên gia thời gian tối ưu phân bổ 60-70% tổng lực của mindmap vào góc phần tư Q2 (Quan trọng nhưng Không khẩn cấp).",
+                          "Chuyên gia thời gian đề xuất tập trung 60-70% tổng lực tinh thần vào Q2 (Quan trọng nhưng Không khẩn cấp).",
                           style: GoogleFonts.inter(
                             fontSize: 11,
-                            color: const Color(0xFF94A3B8),
+                            color: theme.textTheme.bodySmall?.color,
                             height: 1.45,
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 22),
                         _buildQuadrantRow(
-                          title: "Q1: Khẩn cấp & Quan trọng",
+                          title: "Q1: Khẩn và Quan trọng",
                           completed: q1Completed,
                           total: q1Total,
                           densityPercent: total > 0 ? (q1Total / total) : 0,
@@ -450,7 +445,7 @@ class _CompletedScreenState extends State<CompletedScreen> {
                           color: const Color(0xFFF43F5E),
                           isDark: isDark,
                         ),
-                        const SizedBox(height: 14),
+                        const SizedBox(height: 16),
                         _buildQuadrantRow(
                           title: "Q2: Kế hoạch lâu dài",
                           completed: q2Completed,
@@ -460,7 +455,7 @@ class _CompletedScreenState extends State<CompletedScreen> {
                           color: const Color(0xFF0EA5E9),
                           isDark: isDark,
                         ),
-                        const SizedBox(height: 14),
+                        const SizedBox(height: 16),
                         _buildQuadrantRow(
                           title: "Q3: Gây xao nhãng",
                           completed: q3Completed,
@@ -470,7 +465,7 @@ class _CompletedScreenState extends State<CompletedScreen> {
                           color: const Color(0xFFF59E0B),
                           isDark: isDark,
                         ),
-                        const SizedBox(height: 14),
+                        const SizedBox(height: 16),
                         _buildQuadrantRow(
                           title: "Q4: Ít giá trị",
                           completed: q4Completed,
@@ -489,14 +484,14 @@ class _CompletedScreenState extends State<CompletedScreen> {
               // 4. GỢI Ý HUẤN LUYỆN VIÊN NĂNG SUẤT (Coaching Smart Insights)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                  padding: const EdgeInsets.only(bottom: 24.0),
                   child: Container(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(22),
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF1E293B).withOpacity(0.4) : const Color(0xFFF1F5F9).withOpacity(0.6),
-                      borderRadius: BorderRadius.circular(24),
+                      color: isDark ? const Color(0xFF1E1E1E).withOpacity(0.5) : const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(28),
                       border: Border.all(
-                        color: isDark ? const Color(0xFF334155).withOpacity(0.3) : const Color(0xFFE2E8F0).withOpacity(0.7),
+                        color: isDark ? const Color(0xFF2D2D2D) : const Color(0xFFE2E8F0),
                         width: 1,
                       ),
                     ),
@@ -505,12 +500,12 @@ class _CompletedScreenState extends State<CompletedScreen> {
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.auto_awesome, color: Color(0xFF6366F1), size: 18),
+                            const Icon(Icons.auto_awesome_rounded, color: Color(0xFF4F46E5), size: 16),
                             const SizedBox(width: 8),
                             Text(
                               "GỢI Ý HUẤN LUYỆN VIÊN NĂNG SUẤT",
                               style: GoogleFonts.inter(
-                                fontSize: 11,
+                                fontSize: 10.5,
                                 fontWeight: FontWeight.bold,
                                 color: const Color(0xFF64748B),
                                 letterSpacing: 1.0,
@@ -518,7 +513,7 @@ class _CompletedScreenState extends State<CompletedScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 18),
                         ListView.separated(
                           shrinkWrap: true,
                           padding: EdgeInsets.zero,
@@ -535,22 +530,18 @@ class _CompletedScreenState extends State<CompletedScreen> {
                 ),
               ),
 
-              // Tiêu đề vùng tìm kiếm kiểm soát nhiệm vụ
+              // Tiêu đề phân mục dưới
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 28, 16, 4),
-                  child: Row(
-                    children: [
-                      Text(
-                        "DANH SÁCH NHIỆM VỤ ĐÃ HOÀN THÀNH",
-                        style: GoogleFonts.inter(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFF94A3B8),
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-                    ],
+                  padding: const EdgeInsets.only(bottom: 8.0, left: 2),
+                  child: Text(
+                    "DANH SÁCH NHIỆM VỤ ĐÃ HOÀN THÀNH",
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      color: const Color(0xFF94A3B8),
+                      letterSpacing: 1.2,
+                    ),
                   ),
                 ),
               ),
@@ -558,11 +549,11 @@ class _CompletedScreenState extends State<CompletedScreen> {
               // 5. Bộ lọc dạng viên nang Sleek Tabs nổi mềm mại (Capsule Tab Buttons)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+                  padding: const EdgeInsets.only(bottom: 16.0),
                   child: Container(
-                    padding: const EdgeInsets.all(5),
+                    padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                      color: isDark ? const Color(0xFF161616) : const Color(0xFFF1F5F9),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Row(
@@ -574,19 +565,18 @@ class _CompletedScreenState extends State<CompletedScreen> {
                             onTap: () => setState(() => _filter = f),
                             borderRadius: BorderRadius.circular(12),
                             child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              padding: const EdgeInsets.symmetric(vertical: 9),
+                              duration: const Duration(milliseconds: 180),
+                              padding: const EdgeInsets.symmetric(vertical: 8.5),
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? (isDark ? const Color(0xFF475569) : Colors.white)
-                                    : Colors.transparent,
+                                    ? theme.cardColor : Colors.transparent,
                                 borderRadius: BorderRadius.circular(12),
                                 boxShadow: isSelected
                                     ? [
                                         BoxShadow(
-                                          color: Colors.black.withOpacity(0.03),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 3),
+                                          color: Colors.black.withOpacity(0.02),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 2),
                                         )
                                       ]
                                     : [],
@@ -596,19 +586,18 @@ class _CompletedScreenState extends State<CompletedScreen> {
                                 children: [
                                   Icon(
                                     _getFilterIcon(f),
-                                    size: 15,
+                                    size: 14,
                                     color: isSelected
-                                        ? (isDark ? Colors.white : const Color(0xFF4F46E5))
-                                        : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
-                                  ),
-                                  const SizedBox(width: 5),
+                                        ? theme.colorScheme.primary : theme.textTheme.bodySmall?.color),
+                                  
+                                  const SizedBox(width: 6),
                                   Text(
                                     _getFilterName(f),
                                     style: GoogleFonts.inter(
-                                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                                       fontSize: 12,
                                       color: isSelected
-                                          ? (isDark ? Colors.white : const Color(0xFF1E293B))
+                                          ? (isDark ? Colors.white : const Color(0xFF0F172A))
                                           : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
                                     ),
                                   ),
@@ -623,43 +612,43 @@ class _CompletedScreenState extends State<CompletedScreen> {
                 ),
               ),
 
-              // 6. Danh sách tác vụ hiển thị dưới dạng Slate Cards mượt mà
+              // 6. Danh sách tác vụ hiển thị dưới dạng Slate Cards phẳng thanh mảnh
               filteredTasks.isEmpty
                   ? SliverFillRemaining(
                       hasScrollBody: false,
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.checklist_rounded, 
-                              size: 48, 
-                              color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              "Không tìm thấy nhiệm vụ nào phù hợp",
-                              style: GoogleFonts.inter(
-                                fontSize: 13, 
-                                fontWeight: FontWeight.w500,
-                                color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 40.0),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.playlist_add_check_rounded, 
+                                size: 42, 
+                                color: isDark ? const Color(0xFF252525) : const Color(0xFFCBD5E1),
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 10),
+                              Text(
+                                "Không tìm thấy việc nào hoàn tất cả",
+                                style: GoogleFonts.inter(
+                                  fontSize: 13, 
+                                  fontWeight: FontWeight.w600,
+                                  color: isDark ? const Color(0xFF555555) : const Color(0xFF94A3B8),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     )
-                  : SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      sliver: SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            final task = filteredTasks[index];
-                            final key = _findKeyForTask(task, provider);
-                            return _buildSleekTaskCard(context, task, key, provider, isDark);
-                          },
-                          childCount: filteredTasks.length,
-                        ),
+                  : SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final task = filteredTasks[index];
+                          final key = _findKeyForTask(task, provider);
+                          return _buildSleekTaskCard(context, task, key, provider, isDark);
+                        },
+                        childCount: filteredTasks.length,
                       ),
                     ),
             ],
@@ -669,24 +658,25 @@ class _CompletedScreenState extends State<CompletedScreen> {
     );
   }
 
-  // Cột hiển thị số liệu nhỏ gọn, trực quan
+  // Cột hiển thị số liệu nhỏ gọn, đồng bộ visual
   Widget _buildStatColumn(String label, String value, bool isDark, {Color? valueColor}) {
     return Column(
       children: [
         Text(
           value,
           style: GoogleFonts.inter(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: valueColor ?? (isDark ? const Color(0xFFF1F5F9) : const Color(0xFF1E293B)),
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
+            color: valueColor ?? (isDark ? const Color(0xFFF1F5F9) : const Color(0xFF0F172A)),
+            letterSpacing: -0.5,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 3),
         Text(
           label,
           style: GoogleFonts.inter(
             fontSize: 10,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
             color: const Color(0xFF94A3B8),
           ),
         ),
@@ -694,7 +684,7 @@ class _CompletedScreenState extends State<CompletedScreen> {
     );
   }
 
-  // Dòng hiển thị Dual Matrix Process Progress Bar
+  // Dòng hiển thị Dual Ma Trận Process Progress Bar chuẩn React (Đã chuẩn hóa công thức tỷ lệ 100%)
   Widget _buildQuadrantRow({
     required String title,
     required int completed,
@@ -704,7 +694,6 @@ class _CompletedScreenState extends State<CompletedScreen> {
     required Color color,
     required bool isDark,
   }) {
-    final densityText = "${(densityPercent * 100).round()}% mật độ";
     final isAnyTask = total > 0;
 
     return Column(
@@ -716,8 +705,8 @@ class _CompletedScreenState extends State<CompletedScreen> {
             Row(
               children: [
                 Container(
-                  width: 8,
-                  height: 8,
+                  width: 7,
+                  height: 7,
                   decoration: BoxDecoration(
                     color: color,
                     shape: BoxShape.circle,
@@ -727,48 +716,49 @@ class _CompletedScreenState extends State<CompletedScreen> {
                 Text(
                   title,
                   style: GoogleFonts.inter(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12.5,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
                     color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
                   ),
                 ),
               ],
             ),
             Text(
-              "$completed/$total việc ($densityText)",
+              "$completed/$total mục (${(densityPercent * 100).round()}% lượng)",
               style: GoogleFonts.inter(
-                fontWeight: FontWeight.w500,
-                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                fontSize: 10.5,
                 color: const Color(0xFF94A3B8),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 6),
-        // Bộ hiển thị dual levels: Shadow Density bọc lót và cột màu tiến tiến trình thật thụ
+        const SizedBox(height: 8),
+        // Thước đo hai mức diện tích mờ bao phủ
         Container(
           width: double.infinity,
-          height: 22,
+          height: 20,
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+            color: isDark ? const Color(0xFF161616) : const Color(0xFFF8FAFC),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: isDark ? const Color(0xFF334155).withOpacity(0.3) : const Color(0xFFE2E8F0),
+              color: isDark ? const Color(0xFF2D2D2D) : const Color(0xFFE2E8F0),
+              width: 0.8,
             ),
           ),
           child: Stack(
             children: [
-              // 1. Phủ mờ mật độ (Density shadow layer)
+              // 1. Phủ mờ mật độ số lượng tổng thể (Density shadow layer)
               FractionallySizedBox(
                 widthFactor: densityPercent.clamp(0.0, 1.0),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.05),
+                    color: color.withOpacity(0.06),
                     borderRadius: BorderRadius.circular(7),
                   ),
                 ),
               ),
-              // 2. Thước tiến trình công việc đã gặt hái (Completion overlay)
+              // 2. Tiến trình dứt điểm hoàn thành việc thật thụ (Chuyển đổi hoàn hảo 100%)
               if (isAnyTask)
                 FractionallySizedBox(
                   widthFactor: completionPercent.clamp(0.0, 1.0),
@@ -785,8 +775,8 @@ class _CompletedScreenState extends State<CompletedScreen> {
                         ? Text(
                             "${(completionPercent * 100).round()}%",
                             style: GoogleFonts.inter(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w800,
+                              fontSize: 8.5,
+                              fontWeight: FontWeight.w900,
                               color: Colors.white,
                             ),
                           )
@@ -800,7 +790,7 @@ class _CompletedScreenState extends State<CompletedScreen> {
     );
   }
 
-  // Thẻ hỗ trợ của Productivity Coach
+  // Thẻ hỗ trợ của Productivity Coach chuẩn phong thái React
   Widget _buildInsightCard(CoachInsight insight, bool isDark) {
     final Color bgColor;
     final Color borderColor;
@@ -809,20 +799,20 @@ class _CompletedScreenState extends State<CompletedScreen> {
     final String tagLabel = insight.title;
 
     if (insight.type == 'success') {
-      bgColor = isDark ? const Color(0xFF064E3B).withOpacity(0.2) : const Color(0xFFECFDF5);
-      borderColor = isDark ? const Color(0xFF059669).withOpacity(0.3) : const Color(0xFFA7F3D0);
+      bgColor = isDark ? const Color(0xFF064E3B).withOpacity(0.12) : const Color(0xFFECFDF5);
+      borderColor = isDark ? const Color(0xFF059669).withOpacity(0.2) : const Color(0xFFA7F3D0);
       textColor = isDark ? const Color(0xFFA7F3D0) : const Color(0xFF065F46);
-      tagBgColor = isDark ? const Color(0xFF047857) : const Color(0xFF34D399).withOpacity(0.25);
+      tagBgColor = isDark ? const Color(0xFF047857) : const Color(0xFF34D399).withOpacity(0.2);
     } else if (insight.type == 'warn') {
-      bgColor = isDark ? const Color(0xFF78350F).withOpacity(0.15) : const Color(0xFFFFFBEB);
-      borderColor = isDark ? const Color(0xFFD97706).withOpacity(0.2) : const Color(0xFFFEF3C7);
+      bgColor = isDark ? const Color(0xFF78350F).withOpacity(0.1) : const Color(0xFFFFFBEB);
+      borderColor = isDark ? const Color(0xFFD97706).withOpacity(0.15) : const Color(0xFFFEF3C7);
       textColor = isDark ? const Color(0xFFFDE68A) : const Color(0xFF92400E);
-      tagBgColor = isDark ? const Color(0xFFB45309) : const Color(0xFFFBBF24).withOpacity(0.25);
+      tagBgColor = isDark ? const Color(0xFFB45309) : const Color(0xFFFBBF24).withOpacity(0.2);
     } else {
-      bgColor = isDark ? const Color(0xFF1E293B) : Colors.white;
-      borderColor = isDark ? const Color(0xFF334155).withOpacity(0.5) : const Color(0xFFE2E8F0);
-      textColor = isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569);
-      tagBgColor = isDark ? const Color(0xFF475569) : const Color(0xFFCBD5E1).withOpacity(0.4);
+      bgColor = isDark ? const Color(0xFF161616) : Colors.white;
+      borderColor = isDark ? const Color(0xFF2D2D2D) : const Color(0xFFE2E8F0);
+      textColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569);
+      tagBgColor = isDark ? const Color(0xFF2D2D2D) : const Color(0xFFCBD5E1).withOpacity(0.35);
     }
 
     return Container(
@@ -830,7 +820,7 @@ class _CompletedScreenState extends State<CompletedScreen> {
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor),
+        border: Border.all(color: borderColor, width: 0.8),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -838,14 +828,8 @@ class _CompletedScreenState extends State<CompletedScreen> {
           Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: isDark ? Colors.white.withOpacity(0.06) : Colors.white,
+              color: isDark ? Colors.white.withOpacity(0.04) : Colors.white,
               borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.01),
-                  blurRadius: 4,
-                ),
-              ],
             ),
             child: Icon(
               insight.icon,
@@ -853,8 +837,8 @@ class _CompletedScreenState extends State<CompletedScreen> {
                   ? const Color(0xFF10B981)
                   : insight.type == 'warn'
                       ? const Color(0xFFFBBF24)
-                      : const Color(0xFF6366F1),
-              size: 16,
+                      : const Color(0xFF4F46E5),
+              size: 15,
             ),
           ),
           const SizedBox(width: 12),
@@ -863,7 +847,7 @@ class _CompletedScreenState extends State<CompletedScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
                   decoration: BoxDecoration(
                     color: tagBgColor,
                     borderRadius: BorderRadius.circular(4),
@@ -900,26 +884,19 @@ class _CompletedScreenState extends State<CompletedScreen> {
     );
   }
 
-  // Thẻ Task Card tinh tế của phong cách thiết kế Nordic
+  // Thẻ Task Card tinh tế tuyệt đẹp chuẩn Flat Nordic style
   Widget _buildSleekTaskCard(BuildContext context, Task task, String key, TaskProvider provider, bool isDark) {
     final Map<String, dynamic> qDesign = _getQuadrantDesign(key);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark ? const Color(0xFF334155).withOpacity(0.5) : const Color(0xFFF1F5F9),
+          color: isDark ? const Color(0xFF2D2D2D) : const Color(0xFFF1F5F9),
           width: 1,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.02),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
@@ -927,15 +904,11 @@ class _CompletedScreenState extends State<CompletedScreen> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Thanh phân tích loại ma trận góc trái cách điệu
+              // Chỉ thị màu mỏng dạng dọc ở bên trái hệt như TaskCard của React 
               Container(
-                width: 5,
+                width: 4,
                 decoration: BoxDecoration(
                   color: qDesign['color'] as Color,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    bottomLeft: Radius.circular(16),
-                  ),
                 ),
               ),
               Expanded(
@@ -943,22 +916,22 @@ class _CompletedScreenState extends State<CompletedScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   child: Row(
                     children: [
-                      // Vòng hoàn tất
+                      // Trạng thái nút check tích xanh nhạt tối giản
                       Container(
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF10B981).withOpacity(isDark ? 0.15 : 0.08),
+                          color: const Color(0xFF10B981).withOpacity(isDark ? 0.12 : 0.06),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
-                          Icons.check_circle_rounded, 
+                          Icons.check_circle_outline_rounded, 
                           color: Color(0xFF10B981), 
-                          size: 22,
+                          size: 20,
                         ),
                       ),
                       const SizedBox(width: 12),
 
-                      // Toàn bộ thông tin chữ và ngày tháng
+                      // Tiêu đề cùng thời gian dãn dòng mượt
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -967,17 +940,17 @@ class _CompletedScreenState extends State<CompletedScreen> {
                             Text(
                               task.title,
                               style: GoogleFonts.inter(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w600 ?? FontWeight.w500,
+                                color: isDark ? const Color(0xFF555555) : const Color(0xFF94A3B8),
                                 decoration: TextDecoration.lineThrough,
                               ),
                             ),
-                            const SizedBox(height: 5),
+                            const SizedBox(height: 4),
                             Row(
                               children: [
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
                                   decoration: BoxDecoration(
                                     color: (qDesign['color'] as Color).withOpacity(0.08),
                                     borderRadius: BorderRadius.circular(4),
@@ -986,23 +959,23 @@ class _CompletedScreenState extends State<CompletedScreen> {
                                     qDesign['label'] as String,
                                     style: GoogleFonts.inter(
                                       color: qDesign['color'] as Color,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 9,
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 8.5,
                                     ),
                                   ),
                                 ),
                                 const SizedBox(width: 8),
                                 Icon(
-                                  Icons.event_available_rounded, 
-                                  size: 12, 
-                                  color: isDark ? const Color(0xFF475569) : const Color(0xFF94A3B8),
+                                  Icons.event_note_rounded, 
+                                  size: 11, 
+                                  color: isDark ? const Color(0xFF444444) : const Color(0xFF94A3B8),
                                 ),
                                 const SizedBox(width: 3),
                                 Text(
                                   "${task.createdAt.day}/${task.createdAt.month}",
                                   style: GoogleFonts.inter(
-                                    color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
-                                    fontSize: 10.5,
+                                    color: isDark ? const Color(0xFF555555) : const Color(0xFF94A3B8),
+                                    fontSize: 10,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -1012,12 +985,12 @@ class _CompletedScreenState extends State<CompletedScreen> {
                         ),
                       ),
 
-                      // Nút xóa nhiệm vụ đơn sắc thời trang
+                      // Nút xóa công việc
                       IconButton(
-                        splashRadius: 18,
-                        icon: Icon(
+                        splashRadius: 16,
+                        icon: const Icon(
                           Icons.delete_outline_rounded, 
-                          color: isDark ? const Color(0xFFEF4444) : const Color(0xFFF43F5E),
+                          color: Color(0xFFEF4444),
                           size: 18,
                         ),
                         onPressed: () => provider.deleteTask(key, task),
@@ -1033,16 +1006,16 @@ class _CompletedScreenState extends State<CompletedScreen> {
     );
   }
 
-  // Trả về Icon cho từng bộ lọc
+  // Phục vụ cấu hình icon bộ lọc viên nang
   IconData _getFilterIcon(CompletedFilter filter) {
     switch (filter) {
       case CompletedFilter.all: return Icons.all_inclusive_rounded;
-      case CompletedFilter.urgent: return Icons.bolt_rounded;
+      case CompletedFilter.urgent: return Icons.offline_bolt_rounded;
       case CompletedFilter.notUrgent: return Icons.spa_rounded;
     }
   }
 
-  // Trả về Tên bộ lọc
+  // Tên hiển thị các bộ lọc
   String _getFilterName(CompletedFilter filter) {
     switch (filter) {
       case CompletedFilter.all: return "Tất cả";
@@ -1051,7 +1024,7 @@ class _CompletedScreenState extends State<CompletedScreen> {
     }
   }
 
-  // Trả về màu sắc pastel và nhãn dán tương thích từ preset
+  // Bộ preset chuẩn hóa màu sắc từ React
   Map<String, dynamic> _getQuadrantDesign(String key) {
     switch (key) {
       case TaskService.urgentImportantKey:

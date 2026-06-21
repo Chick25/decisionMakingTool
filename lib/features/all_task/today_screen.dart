@@ -92,7 +92,7 @@ class _TodayScreenState extends State<TodayScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F9), // Màu nền xám pastel mát mẻ giống React
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Màu nền xám pastel mát mẻ giống React
       body: Consumer<TaskProvider>(
         builder: (context, provider, child) {
           final tasksForSelectedDay = _getTasksForDay(_selectedDay ?? _focusedDay, provider);
@@ -147,9 +147,9 @@ class _TodayScreenState extends State<TodayScreen> {
   Widget _buildCalendarCard(TaskProvider provider) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color:Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+        border: Border.all(color: Theme.of(context).dividerColor, width: 1),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.02),
